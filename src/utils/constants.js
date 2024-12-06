@@ -94,9 +94,7 @@ export const adminNavItems = [
         columns: [
             "id",
             "title_de",
-            "title_ru",
-            "description_de",
-            "description_ru"
+            "title_ru"
         ]
     },
     {
@@ -105,6 +103,7 @@ export const adminNavItems = [
         constructor: IngredientConstructor,
         columns: [
             "id",
+            "sizeid",
             "title_de",
             "title_ru",
             "description_de",
