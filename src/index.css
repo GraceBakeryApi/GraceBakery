@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Poller+One&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans;
+    @apply text-beige-dark;
+    @apply bg-fixed;
+  }
+}
+
+@layer components {
+  .btn-beige {
+    @apply border-2 border-beige-dark col-start-3 my-5 rounded-lg bg-beige-dark text-cream w-full h-10;
+  }
+  .input-txt {
+    @apply bg-cream border-2 border-beige-dark rounded-lg my-2 focus:placeholder:text-transparent block w-full h-10 pl-2;
+  }
+}
