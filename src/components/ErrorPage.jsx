@@ -1,8 +1,8 @@
-const ErrorPage = () => {
+import React from 'react'
+
+function ErrorPage({ message }) {
     return (
-        <div>
-            Looks like there is a placeholder for now.
-        </div>
+        <div className="text-red-dark text-4xl">{message}</div>
     )
 }
 

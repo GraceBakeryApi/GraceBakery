@@ -4,6 +4,8 @@ import Popup from '../../Popup';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
 import { MoonLoader } from 'react-spinners';
+import Loading from '../../Loading';
+import ErrorPage from '../../ErrorPage';
 
 function IngredientConstructor({ mode }) {
   const location = useLocation();
@@ -77,11 +79,11 @@ function IngredientConstructor({ mode }) {
   const closePopup = () => setPopupVisible(false);
 
   if (loading) {
-    return <div className='flex justify-center mt-12'><MoonLoader size={'45 rem'} /></div>;
+    return <Loading />
   }
 
   if (error) {
-    return <div className="text-red-dark text-4xl">Ошибка загрузки: {error}</div>;
+    return <ErrorPage message={"Ошибка загрузки" + error} />;
   }
 
   return (
@@ -138,11 +140,11 @@ function IngredientConstructor({ mode }) {
           className="input-txt"
         />
         <input
-          type="url"
+          type="text"
           autocomplete="off"
           name="image_de"
           onChange={formik.handleChange}
-          value={formik.values.image_ru}
+          value={formik.values.image_de}
           placeholder="Ссылка на изображение"
           className="input-txt"
         />

@@ -1,6 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router-dom';
 
 function NavigationItem({ item }) {
+    const { t, i18n } = useTranslation();
+
     return (
         <NavLink
             to={item.path}
@@ -11,7 +14,7 @@ function NavigationItem({ item }) {
                 }`
             }
         >
-            {item.title}
+            {t(`navItems.${[item.tKey]}`)}
         </NavLink>
     );
 }

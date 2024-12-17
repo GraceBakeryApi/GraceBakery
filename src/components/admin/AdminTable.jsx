@@ -17,6 +17,8 @@ import {
 } from "@mui/material";
 import { MoonLoader } from "react-spinners";
 import Popup from "../Popup";
+import Loading from "../Loading";
+import ErrorPage from "../ErrorPage";
 
 function AdminTable({ items }) {
     const { entity } = useParams();
@@ -44,7 +46,7 @@ function AdminTable({ items }) {
             try {
                 const response = await fetch(`/api${currentItem.path}`);
                 if (!response.ok) {
-                    throw new Error(`Ошибка загрузки данных для ${currentItem.title}`);
+                    throw new Error(`Ошибка загрузки данных для: ${currentItem.title}`);
                 }
                 const result = await response.json();
                 setData(result);
@@ -60,14 +62,14 @@ function AdminTable({ items }) {
     }, [currentItem]);
 
     if (loading) {
-        return <div className='flex justify-center mt-12'><MoonLoader size={'45 rem'} /></div>;
+        return <Loading />
     }
 
     if (error) {
-        return <div className="text-red-dark text-4xl">{error}</div>;
+        return <ErrorPage message={"Ошибка загрузки: " + error} />;
     }
 
-    const handleRequestSort = (property) => { //Нажатие на сортировку колонки
+    const handleRequestSort = (property) => {
         const isAsc = orderBy === property && order === "asc";
         setOrder(isAsc ? "desc" : "asc");
         setOrderBy(property);

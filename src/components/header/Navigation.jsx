@@ -1,5 +1,6 @@
 import NavigationItem from './NavigationItem';
 import { navItems } from '../../utils/constants';
+import { useTranslation } from 'react-i18next';
 
 function Navigation() {
     return (

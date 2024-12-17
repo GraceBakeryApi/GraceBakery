@@ -4,6 +4,8 @@ import Popup from '../../Popup';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
 import { MoonLoader } from 'react-spinners';
+import Loading from '../../Loading';
+import ErrorPage from '../../ErrorPage';
 
 function FilterConstructor({ mode }) {
   const location = useLocation();
@@ -71,11 +73,11 @@ function FilterConstructor({ mode }) {
   const closePopup = () => setPopupVisible(false);
 
   if (loading) {
-    return <div className='flex justify-center mt-12'><MoonLoader size={'45 rem'} /></div>;
+    return <Loading />
   }
 
   if (error) {
-    return <div className="text-red-dark text-4xl">Ошибка загрузки: {error}</div>;
+    return <ErrorPage message={"Ошибка загрузки" + error} />;
   }
 
   return (

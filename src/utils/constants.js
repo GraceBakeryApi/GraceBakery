@@ -7,11 +7,12 @@ import SectionConstructor from "../components/admin/constructors/SectionConstruc
 import SizeConstructor from "../components/admin/constructors/SizeConstructor";
 
 export const navItems = [
-    { title: 'Войти', path: '/login' },
-    { title: 'Зарегистрироваться', path: '/registration' },
-    { title: 'Инструменты администратора', path: '/admin' },
-    { title: 'Мой профиль', path: '/profile' },
-    { title: 'Обо мне', path: '/about' }
+    { tKey: 'logIn', path: '/login' },
+    { tKey: 'registration', path: '/registration' },
+    { tKey: 'adminPanel', path: '/admin' },
+    { tKey: 'catalog', path: '/catalog'},
+    { tKey: 'profile', path: '/profile' },
+    { tKey: 'aboutMe', path: '/about' }
 ];
 
 export const adminNavItems = [

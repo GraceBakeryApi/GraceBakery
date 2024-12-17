@@ -4,6 +4,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import MoonLoader from 'react-spinners/MoonLoader';
 import Popup from '../../Popup';
 import { Button } from '@mui/material';
+import Loading from '../../Loading';
+import ErrorPage from '../../ErrorPage';
 
 function CategoryConstructor({ mode }) {
   const location = useLocation();
@@ -92,11 +94,11 @@ function CategoryConstructor({ mode }) {
   };
 
   if (loading) {
-    return <div className='flex justify-center mt-12'><MoonLoader size={'45 rem'} /></div>;
+    return <Loading />
   }
 
   if (error) {
-    return <div className="text-red-dark text-4xl">Ошибка загрузки: {error}</div>;
+    return <ErrorPage message={"Ошибка загрузки" + error} />;
   }
 
   return (

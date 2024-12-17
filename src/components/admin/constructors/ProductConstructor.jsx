@@ -4,6 +4,8 @@ import Popup from '../../Popup';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
 import { MoonLoader } from 'react-spinners';
+import Loading from '../../Loading';
+import ErrorPage from '../../ErrorPage';
 
 function ProductConstructor({ mode }) {
   const location = useLocation();
@@ -37,9 +39,9 @@ function ProductConstructor({ mode }) {
           fetch('/api/sections/isactive/false'),
           fetch('/api/categories/isactive/true'),
           fetch('/api/categories/isactive/false'),
-          fetch('/api/option'),
-          fetch('/api/filter'),
-          fetch('/api/ingredient'),
+          fetch('/api/options'),
+          fetch('/api/filters'),
+          fetch('/api/ingredients'),
         ]);
 
         if (!sectionsActiveRes.ok || !sectionsInactiveRes.ok || !categoriesActiveRes.ok || !categoriesInactiveRes.ok || !optionsRes.ok || !filtersRes.ok || !ingredientsRes.ok) {
@@ -117,7 +119,7 @@ function ProductConstructor({ mode }) {
         const path = mode === 'Добавить' ? '/api/product' : `/api/product/${id}`;
         const response = await fetch(path, {
           method: mode === 'Добавить' ? 'POST' : 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'multipart/form-data' },
           body: JSON.stringify(values),
         });
         if (response.ok) {
@@ -180,11 +182,11 @@ function ProductConstructor({ mode }) {
   };
 
   if (loading) {
-    return <div className='flex justify-center mt-12'><MoonLoader size={'45 rem'} /></div>;
+    return <Loading />
   }
 
   if (error) {
-    return <div className="text-red-dark text-4xl">Ошибка загрузки: {error}</div>;
+    return <ErrorPage message={"Ошибка загрузки" + error} />;
   }
 
   return (
@@ -275,7 +277,7 @@ function ProductConstructor({ mode }) {
         />
       </label>
       <input
-        type="url"
+        type="file"
         autocomplete="off"
         name="image"
         onChange={formik.handleChange}

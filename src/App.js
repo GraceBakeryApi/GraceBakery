@@ -7,7 +7,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 
 const tailwindColors = {
   cream: {
-    light: 'FFFFFF',
+    light: '#FFFFFF',
     main: '#FFFBEB',
     dark: '#E6C7B4',
   },

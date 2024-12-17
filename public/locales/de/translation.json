@@ -1,0 +1,19 @@
+{
+    "navItems": {
+        "logIn": "Anmeldung",
+        "registration": "Registrieren",
+        "adminPanel": "Verwaltungs-Tools",
+        "catalog": "Katalog",
+        "profile": "Mein Profil",
+        "aboutMe": "Über mich"
+    },
+    "start": {
+        "products": {
+            "title": "Meine Produkte"
+        },
+        "about": {
+            "title": "Über mich",
+            "description": "Ich backe seit vielen Jahren Kuchen und würde mich sehr über Ihre Bestellung freuen!"
+        }
+    }
+}
