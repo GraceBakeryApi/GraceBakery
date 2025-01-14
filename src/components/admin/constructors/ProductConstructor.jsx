@@ -315,11 +315,22 @@ function ProductConstructor({ mode }) {
         {renderDropdown('filters', filters)}
       </div>
 
-      <div className="flex justify-between mt-6">
-        <Button variant="outlined" onClick={handleCancel}>
-          Отмена
+      <div className="flex justify-between my-4">
+        <Button
+          type="button"
+          variant="outlined"
+          color="secondary"
+          onClick={handleCancel}
+          sx={{ flexGrow: 1, marginRight: 1 }}
+        >
+          Отменить
         </Button>
-        <Button type="submit" variant="contained" color="primary">
+        <Button
+          type="submit"
+          variant="contained"
+          color="secondary"
+          sx={{ flexGrow: 1, marginLeft: 1 }}
+        >
           Сохранить
         </Button>
       </div>

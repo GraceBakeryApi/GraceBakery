@@ -10,7 +10,7 @@ export const navItems = [
     { tKey: 'logIn', path: '/login' },
     { tKey: 'registration', path: '/registration' },
     { tKey: 'adminPanel', path: '/admin' },
-    { tKey: 'catalog', path: '/catalog'},
+    { tKey: 'catalog', path: '/catalog' },
     { tKey: 'profile', path: '/profile' },
     { tKey: 'aboutMe', path: '/about' }
 ];
@@ -72,6 +72,7 @@ export const adminNavItems = [
             "description_de",
             "description_ru",
             "image",
+            "sizeId",
             "price"
         ]
     },
