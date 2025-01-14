@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import Popup from '../../Popup';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
-import { MoonLoader } from 'react-spinners';
+import * as Yup from "yup";
 import Loading from '../../Loading';
 import ErrorPage from '../../ErrorPage';
 
@@ -45,6 +45,17 @@ function FilterConstructor({ mode }) {
       title_ru: '',
       title_de: ''
     },
+    validationSchema:
+      Yup.object({
+        title_ru: Yup.string()
+          .min(2, "Минимум 2 символа")
+          .max(40, "Максимум 40 символов")
+          .required("Обязательное"),
+        title_de: Yup.string()
+          .min(2, "Минимум 2 символа")
+          .max(40, "Максимум 40 символов")
+          .required("Обязательное"),
+      }),
     onSubmit: async (values) => {
       try {
         const path = mode === 'Добавить' ? '/api/filter' : `/api/filter/${id}`;
@@ -90,11 +101,13 @@ function FilterConstructor({ mode }) {
           autocomplete="off"
           name="title_ru"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.title_ru}
           placeholder="Заголовок фильтра на русском"
           className="input-txt"
         />
       </label>
+      {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red'>{formik.errors.title_ru}</p> : null}
       <label className="text-beige text-xl">
         Немецкий:
         <input
@@ -102,11 +115,13 @@ function FilterConstructor({ mode }) {
           autocomplete="off"
           name="title_de"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.title_de}
           placeholder="Заголовок фильтра на немецком"
           className="input-txt"
         />
       </label>
+      {formik.touched.title_de && formik.errors.title_de ? <p className='text-red'>{formik.errors.title_de}</p> : null}
       <div className="flex justify-between my-4">
         <Button
           type="button"

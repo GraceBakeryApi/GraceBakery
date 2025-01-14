@@ -3,16 +3,15 @@ import { useFormik } from 'formik';
 import Popup from '../../Popup';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
-import { MoonLoader } from 'react-spinners';
+import * as Yup from "yup";
 import Loading from '../../Loading';
 import ErrorPage from '../../ErrorPage';
+import ImageInput from './ImageInput';
 
 function ProductConstructor({ mode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = location.state || {};
-  const [activeSections, setActiveSections] = useState([]);
-  const [inactiveSections, setInactiveSections] = useState([]);
   const [activeCategories, setActiveCategories] = useState([]);
   const [inactiveCategories, setInactiveCategories] = useState([]);
   const [options, setOptions] = useState([]);
@@ -22,21 +21,19 @@ function ProductConstructor({ mode }) {
   const [error, setError] = useState(null);
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
-
-  const closePopup = () => setPopupVisible(false);
-
   const [dropdownOpen, setDropdownOpen] = useState({
     ingredients: false,
     options: false,
     filters: false,
   });
+  const [imageInputs, setImageInputs] = useState([]);
+
+  const closePopup = () => setPopupVisible(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [sectionsActiveRes, sectionsInactiveRes, categoriesActiveRes, categoriesInactiveRes, optionsRes, filtersRes, ingredientsRes] = await Promise.all([
-          fetch('/api/sections/isactive/true'),
-          fetch('/api/sections/isactive/false'),
+        const [categoriesActiveRes, categoriesInactiveRes, optionsRes, filtersRes, ingredientsRes] = await Promise.all([
           fetch('/api/categories/isactive/true'),
           fetch('/api/categories/isactive/false'),
           fetch('/api/options'),
@@ -44,13 +41,11 @@ function ProductConstructor({ mode }) {
           fetch('/api/ingredients'),
         ]);
 
-        if (!sectionsActiveRes.ok || !sectionsInactiveRes.ok || !categoriesActiveRes.ok || !categoriesInactiveRes.ok || !optionsRes.ok || !filtersRes.ok || !ingredientsRes.ok) {
+        if (!categoriesActiveRes.ok || !categoriesInactiveRes.ok || !optionsRes.ok || !filtersRes.ok || !ingredientsRes.ok) {
           throw new Error('Ошибка загрузки данных');
         }
 
-        const [sectionsActive, sectionsInactive, categoriesActive, categoriesInactive, optionsData, filtersData, ingredientsData] = await Promise.all([
-          sectionsActiveRes.json(),
-          sectionsInactiveRes.json(),
+        const [categoriesActive, categoriesInactive, optionsData, filtersData, ingredientsData] = await Promise.all([
           categoriesActiveRes.json(),
           categoriesInactiveRes.json(),
           optionsRes.json(),
@@ -58,8 +53,6 @@ function ProductConstructor({ mode }) {
           ingredientsRes.json(),
         ]);
 
-        setActiveSections(sectionsActive);
-        setInactiveSections(sectionsInactive);
         setActiveCategories(categoriesActive);
         setInactiveCategories(categoriesInactive);
         setOptions(optionsData);
@@ -79,7 +72,6 @@ function ProductConstructor({ mode }) {
           if (!response.ok) throw new Error('Не удалось загрузить продукт');
           const data = await response.json();
           formik.setValues({
-            sectionid: data.sectionid || '',
             categoryid: data.categoryid || '',
             title_ru: data.title_ru || '',
             title_de: data.title_de || '',
@@ -102,18 +94,35 @@ function ProductConstructor({ mode }) {
 
   const formik = useFormik({
     initialValues: {
-      sectionid: '',
       categoryid: '',
       title_ru: '',
       title_de: '',
       description_ru: '',
       description_de: '',
-      image: '',
+      image: [],
       ingredients: [],
       options: [],
       filters: [],
       isActive: true,
     },
+    validationSchema: Yup.object({
+      categoryid: Yup.string()
+        .required("Обязательное"),
+      title_ru: Yup.string()
+        .min(2, "Минимум 2 символа")
+        .max(40, "Максимум 40 символов")
+        .required("Обязательное"),
+      title_de: Yup.string()
+        .min(2, "Минимум 2 символа")
+        .max(40, "Максимум 40 символов")
+        .required("Обязательное"),
+      image: Yup.array()
+        .min(1, "Должно быть хотя бы одно изображение")
+        .max(20, "Не может быть больше 20 изображений"),
+      ingredients: Yup.array()
+        .min(1, "Должна быть хотя бы одна начинка")
+        .required("Обязательное"),
+    }),
     onSubmit: async (values) => {
       try {
         const path = mode === 'Добавить' ? '/api/product' : `/api/product/${id}`;
@@ -136,17 +145,28 @@ function ProductConstructor({ mode }) {
   });
 
   const toggleDropdown = (field) => {
-    setDropdownOpen((prev) => ({ ...prev, [field]: !prev[field] }));
+    setDropdownOpen((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+      ingredients: field === 'ingredients' ? !prev.ingredients : false,
+      options: field === 'options' ? !prev.options : false,
+      filters: field === 'filters' ? !prev.filters : false,
+    }));
   };
 
   const handleCheckboxChange = (e, field) => {
     const value = e.target.value;
     const checked = e.target.checked;
-    const currentValues = formik.values[field];
-    formik.setFieldValue(
-      field,
-      checked ? [...currentValues, value] : currentValues.filter((item) => item !== value)
-    );
+    const currentValues = formik.values[field] || [];
+    if (checked) {
+      formik.setFieldValue(field, [...currentValues, +value]);
+    } else {
+      formik.setFieldValue(field, currentValues.filter((item) => item !== +value));
+    }
+  };
+
+  const handleClickInsideDropdown = (e, field) => {
+    e.stopPropagation();
   };
 
   const renderDropdown = (field, items) => (
@@ -154,12 +174,15 @@ function ProductConstructor({ mode }) {
       <button
         type="button"
         onClick={() => toggleDropdown(field)}
-        className="input-txt w-full"
+        className="input-txt w-full mb-0"
       >
         Выберите {field === 'ingredients' ? 'ингредиенты' : field === 'options' ? 'опции' : 'фильтры'}
       </button>
       {dropdownOpen[field] && (
-        <div className="absolute bg-cream border border-beige-dark mt-1 max-h-48 overflow-auto w-full z-10">
+        <div
+          className="absolute bg-cream border border-beige-dark mt-1 max-h-48 overflow-auto w-full z-10"
+          onClick={(e) => handleClickInsideDropdown(e, field)}
+        >
           {items.map((item) => (
             <label key={item.id} className="block px-4 py-2">
               <input
@@ -169,7 +192,7 @@ function ProductConstructor({ mode }) {
                 onChange={(e) => handleCheckboxChange(e, field)}
                 className="mr-2"
               />
-              {item.title}
+              {item.title_ru}
             </label>
           ))}
         </div>
@@ -179,6 +202,17 @@ function ProductConstructor({ mode }) {
 
   const handleCancel = () => {
     navigate(`/admin/categories`);
+  };
+
+  const addImageInput = () => {
+    if (imageInputs.length < 10) {
+      const newId = imageInputs.length;
+      setImageInputs((prev) => [...prev, { id: newId }]);
+    }
+  };
+
+  const handleImageDelete = (idToRemove) => {
+    setImageInputs((prev) => prev.filter((input) => input.id !== idToRemove));
   };
 
   if (loading) {
@@ -192,135 +226,107 @@ function ProductConstructor({ mode }) {
   return (
     <form className="bg-cream px-4" onSubmit={formik.handleSubmit}>
       <h1 className="flex justify-center py-3 text-3xl text-beige">{mode} продукт</h1>
-      <label className="text-beige text-xl">
-        Раздел:
-        <select
-          name="sectionid"
-          onChange={formik.handleChange}
-          value={formik.values.sectionid}
-          className="input-txt"
-        >
-          <option value="">Выберите раздел</option>
-          {activeSections.map((section) => (
-            <option className='bg-cream-dark' key={section.id} value={section.id}>
-              {section.title_ru}
-            </option>
-          ))}
-          {inactiveSections.map((section) => (
-            <option className='bg-red-900' key={section.id} value={section.id}>
-              {section.title_ru}
-            </option>
-          ))}
-        </select>
+      <label htmlFor="categoryid"
+        className="block mb-1"
+      >
+        Категория
       </label>
-      <label className="text-beige text-xl">
-        Категория:
-        <select
-          name="categoryid"
-          onChange={formik.handleChange}
-          value={formik.values.categoryid}
-          className="input-txt"
-        >
-          <option value="">Выберите категорию</option>
-          {activeCategories.map((category) => (
-            <option className='bg-cream-dark' key={category.id} value={category.id}>
-              {category.title_ru}
-            </option>
-          ))}
-          {inactiveCategories.map((category) => (
-            <option className='bg-red-900' key={category.id} value={category.id}>
-              {category.title_ru}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="text-beige text-xl">
-        Русский:
-        <input
-          type="text"
-          autocomplete="off"
-          name="title_ru"
-          onChange={formik.handleChange}
-          value={formik.values.title_ru}
-          placeholder="Заголовок продукта на русском"
-          className="input-txt"
-        />
-        <input
-          type="text"
-          autocomplete="off"
-          name="description_ru"
-          onChange={formik.handleChange}
-          value={formik.values.description_ru}
-          placeholder="Описание продукта на русском"
-          className="input-txt"
-        />
-      </label>
-      <label className="text-beige text-xl">
-        Немецкий:
-        <input
-          type="text"
-          autocomplete="off"
-          name="title_de"
-          onChange={formik.handleChange}
-          value={formik.values.title_de}
-          placeholder="Заголовок продукта на немецком"
-          className="input-txt"
-        />
-        <input
-          type="text"
-          autocomplete="off"
-          name="description_de"
-          onChange={formik.handleChange}
-          value={formik.values.description_de}
-          placeholder="Описание продукта на немецком"
-          className="input-txt"
-        />
+      <select
+        id="categoryid"
+        name="categoryid"
+        value={formik.values.categoryid}
+        onChange={formik.handleChange}
+        className="input-txt w-full"
+      >
+        <option value="">Выберите категорию</option>
+        {activeCategories.map((category) => (
+          <option className='bg-cream-dark' key={category.id} value={category.id}>
+            {category.title_ru}
+          </option>
+        ))}
+        {inactiveCategories.map((category) => (
+          <option className='bg-red-dark' key={category.id} value={category.id}>
+            {category.title_ru}
+          </option>
+        ))}
+      </select>
+      {formik.errors.categoryid && formik.touched.categoryid && (
+        <p className="text-red-600">{formik.errors.categoryid}</p>
+      )}
+
+      <label htmlFor="title_ru" className="block mb-1 mt-4">
+        Название на русском
       </label>
       <input
-        type="file"
-        autocomplete="off"
-        name="image"
+        id="title_ru"
+        name="title_ru"
+        type="text"
+        className="input-txt w-full"
+        value={formik.values.title_ru}
         onChange={formik.handleChange}
-        value={formik.values.image}
-        placeholder="Ссылка на изображение"
-        className="mt-5 input-txt"
+        onBlur={formik.handleBlur}
       />
-      <label className="text-beige text-xl">Начинки:</label>
-      {renderDropdown('ingredients', ingredients)}
-      <label className="text-beige text-xl">Опции:</label>
-      {renderDropdown('options', options)}
-      <label className="text-beige text-xl">Фильтры:</label>
-      {renderDropdown('filters', filters)}
-      <label className="text-xl">
-        <input
-          type="checkbox"
-          name="isActive"
-          onChange={formik.handleChange}
-          checked={formik.values.isActive}
-          className="mt-5 mr-2"
-        />
-        Сделать активным
+      {formik.errors.title_ru && formik.touched.title_ru && (
+        <p className="text-red-600">{formik.errors.title_ru}</p>
+      )}
+
+      <label htmlFor="title_de" className="block mb-1 mt-4">
+        Название на немецком
       </label>
-      <div className="flex justify-between my-4">
-        <Button
-          type="button"
-          variant="outlined"
-          color="secondary"
-          onClick={handleCancel}
-          sx={{ flexGrow: 1, marginRight: 1 }}
-        >
-          Отменить
+      <input
+        id="title_de"
+        name="title_de"
+        type="text"
+        className="input-txt w-full"
+        value={formik.values.title_de}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+      />
+      {formik.errors.title_de && formik.touched.title_de && (
+        <p className="text-red-600">{formik.errors.title_de}</p>
+      )}
+
+      <div className="mt-4">
+        <label className="block mb-1">Изображения</label>
+        {imageInputs.map((input) => (
+          <ImageInput
+            key={input.id}
+            id={input.id}
+            deleteText='Удалить'
+            handleImageDelete={handleImageDelete}
+          />
+        ))}
+        <div className="flex">
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={addImageInput}
+            sx={{ flexGrow: 1, marginRight: 0, marginTop: 0 }}
+            disabled={imageInputs.length >= 10}
+          >
+            Добавить изображение
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-4">
+        {renderDropdown('ingredients', ingredients)}
+        {renderDropdown('options', options)}
+        {renderDropdown('filters', filters)}
+      </div>
+
+      <div className="flex justify-between mt-6">
+        <Button variant="outlined" onClick={handleCancel}>
+          Отмена
         </Button>
-        <Button
-          type="submit"
-          variant="contained"
-          color="secondary"
-          sx={{ flexGrow: 1, marginLeft: 1 }}
-        >
+        <Button type="submit" variant="contained" color="primary">
           Сохранить
         </Button>
       </div>
-      {isPopupVisible && <Popup message={popupMessage} onClose={closePopup} />}
+
+      {isPopupVisible && (
+        <Popup message={popupMessage} onClose={closePopup} />
+      )}
     </form>
   );
 }

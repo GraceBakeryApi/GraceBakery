@@ -1,6 +1,6 @@
-import React from 'react'
-import {Route, Routes} from "react-router-dom";
-import {navItems} from '../utils/constants'
+import React, { PureComponent } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import { navItems } from '../utils/constants'
 import AdminPanel from './admin/AdminPanel'
 import Login from './authorization/Login'
 import Registration from './authorization/Registration'

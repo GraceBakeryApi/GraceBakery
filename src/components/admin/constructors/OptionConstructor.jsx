@@ -3,9 +3,10 @@ import { useFormik } from 'formik';
 import Popup from '../../Popup';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
-import { MoonLoader } from 'react-spinners';
+import * as Yup from "yup";
 import Loading from '../../Loading';
 import ErrorPage from '../../ErrorPage';
+import ImageInput from './ImageInput';
 
 function OptionConstructor({ mode }) {
   const location = useLocation();
@@ -70,6 +71,22 @@ function OptionConstructor({ mode }) {
       price: '',
       sizeid: ''
     },
+    validationSchema:
+      Yup.object({
+        title_ru: Yup.string()
+          .min(2, "Минимум 2 символа")
+          .max(40, "Максимум 40 символов")
+          .required("Обязательное"),
+        title_de: Yup.string()
+          .min(2, "Минимум 2 символа")
+          .max(40, "Максимум 40 символов")
+          .required("Обязательное"),
+        price: Yup.number("Необходимо число (разделитель дроби - точка)")
+          .positive("Только положительное число")
+          .required("Обязательное"),
+        sizeid: Yup.string()
+          .required("Обязательное"),
+      }),
     onSubmit: async (values) => {
       try {
         const path = mode === 'Добавить' ? '/api/option' : `/api/option/${id}`;
@@ -95,6 +112,10 @@ function OptionConstructor({ mode }) {
     navigate(`/admin/categories`);
   };
 
+  const handleAddImage = () => {
+    console.log("Image selected");
+  };
+
   const closePopup = () => setPopupVisible(false);
 
   if (loading) {
@@ -115,19 +136,23 @@ function OptionConstructor({ mode }) {
           autocomplete="off"
           name="title_ru"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.title_ru}
           placeholder="Заголовок опции на русском"
           className="input-txt"
         />
+        {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red'>{formik.errors.title_ru}</p> : null}
         <input
           type="text"
           autocomplete="off"
           name="description_ru"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.description_ru}
           placeholder="Описание опции на русском"
           className="input-txt"
         />
+        {formik.touched.description_ru && formik.errors.description_ru ? <p className='text-red'>{formik.errors.description_ru}</p> : null}
       </label>
       <label className="text-beige text-xl">
         Немецкий:
@@ -136,34 +161,34 @@ function OptionConstructor({ mode }) {
           autocomplete="off"
           name="title_de"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.title_de}
           placeholder="Заголовок опции на немецком"
           className="input-txt"
         />
+        {formik.touched.title_de && formik.errors.title_de ? <p className='text-red'>{formik.errors.title_de}</p> : null}
         <input
           type="text"
           autocomplete="off"
           name="description_de"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.description_de}
           placeholder="Описание опции на немецком"
           className="input-txt"
         />
+        {formik.touched.description_de && formik.errors.description_de ? <p className='text-red'>{formik.errors.description_de}</p> : null}
       </label>
-      <input
-        type="url"
-        autocomplete="off"
-        name="image"
-        onChange={formik.handleChange}
-        value={formik.values.image}
-        placeholder="Ссылка на изображение"
-        className="mt-5 input-txt"
-      />
+      <label className="text-beige text-xl">
+        Изображение:
+        <ImageInput handleAddImage={handleAddImage} />
+      </label>
       <label className="text-beige text-xl">
         Размер:
         <select
           name="sizeid"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.sizeid}
           className="input-txt"
         >
@@ -175,14 +200,17 @@ function OptionConstructor({ mode }) {
           ))}
         </select>
       </label>
+      {formik.touched.sizeid && formik.errors.sizeid ? <p className='text-red'>{formik.errors.sizeid}</p> : null}
       <input
         type="number"
         name="price"
         onChange={(e) => formik.setFieldValue('price', e.target.value === '' ? '' : parseFloat(e.target.value))}
+        onBlur={formik.handleBlur}
         value={formik.values.price === 0 ? '' : formik.values.price}
         placeholder="Цена опции"
         className="mt-5 input-txt"
       />
+      {formik.touched.price && formik.errors.price ? <p className='text-red'>{formik.errors.price}</p> : null}
       <div className="flex justify-between my-4">
         <Button
           type="button"

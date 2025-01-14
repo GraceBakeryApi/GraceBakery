@@ -3,9 +3,10 @@ import { useFormik } from 'formik';
 import Popup from '../../Popup';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
-import { MoonLoader } from 'react-spinners';
+import * as Yup from "yup";
 import Loading from '../../Loading';
 import ErrorPage from '../../ErrorPage';
+import ImageInput from './ImageInput';
 
 function SectionConstructor({ mode }) {
   const location = useLocation();
@@ -49,8 +50,19 @@ function SectionConstructor({ mode }) {
       description_de: "",
       description_ru: "",
       image: "",
-      isActive: true
+      isActive: true,
     },
+    validationSchema:
+      Yup.object({
+        title_ru: Yup.string()
+          .min(2, "Минимум 2 символа")
+          .max(40, "Максимум 40 символов")
+          .required("Обязательное"),
+        title_de: Yup.string()
+          .min(2, "Минимум 2 символа")
+          .max(40, "Максимум 40 символов")
+          .required("Обязательное"),
+      }),
     onSubmit: async (values) => {
       try {
         const path = mode === 'Добавить' ? '/api/section' : `/api/section/${id}`;
@@ -76,6 +88,10 @@ function SectionConstructor({ mode }) {
     navigate(`/admin/categories`);
   };
 
+  const handleAddImage = () => {
+    console.log("Image selected");
+  };
+
   const closePopup = () => setPopupVisible(false);
 
   if (loading) {
@@ -96,19 +112,23 @@ function SectionConstructor({ mode }) {
           autocomplete="off"
           name="title_ru"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.title_ru}
           placeholder='Заголовок раздела на русском'
           className='input-txt'
         />
+        {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red'>{formik.errors.title_ru}</p> : null}
         <input
           type="text"
           autocomplete="off"
           name="description_ru"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.description_ru}
           placeholder='Описание раздела на русском'
           className='input-txt'
         />
+        {formik.touched.description_ru && formik.errors.description_ru ? <p className='text-red'>{formik.errors.description_ru}</p> : null}
       </label>
       <label className='text-beige text-xl'>
         Немецкий:
@@ -117,29 +137,28 @@ function SectionConstructor({ mode }) {
           autocomplete="off"
           name="title_de"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.title_de}
           placeholder='Заголовок раздела на немецком'
           className='input-txt'
         />
+        {formik.touched.title_de && formik.errors.title_de ? <p className='text-red'>{formik.errors.title_de}</p> : null}
         <input
           type="text"
           autocomplete="off"
           name="description_de"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.description_de}
           placeholder='Описание раздела на немецком'
           className='input-txt'
         />
+        {formik.touched.description_de && formik.errors.description_de ? <p className='text-red'>{formik.errors.description_de}</p> : null}
       </label>
-      <input
-        type="url"
-        autocomplete="off"
-        name="image"
-        onChange={formik.handleChange}
-        value={formik.values.image}
-        placeholder='Ссылка на изображение'
-        className='mt-5 input-txt'
-      />
+      <label className="text-beige text-xl">
+        Изображение:
+        <ImageInput handleAddImage={handleAddImage} />
+      </label>
       <label className='text-xl'>
         <input
           type="checkbox"

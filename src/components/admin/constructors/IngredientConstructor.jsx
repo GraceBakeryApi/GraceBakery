@@ -3,9 +3,10 @@ import { useFormik } from 'formik';
 import Popup from '../../Popup';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
-import { MoonLoader } from 'react-spinners';
+import * as Yup from "yup";
 import Loading from '../../Loading';
 import ErrorPage from '../../ErrorPage';
+import ImageInput from './ImageInput';
 
 function IngredientConstructor({ mode }) {
   const location = useLocation();
@@ -51,6 +52,17 @@ function IngredientConstructor({ mode }) {
       image_ru: '',
       image_de: ''
     },
+    validationSchema:
+      Yup.object({
+        title_ru: Yup.string()
+          .min(2, "Минимум 2 символа")
+          .max(40, "Максимум 40 символов")
+          .required("Обязательное"),
+        title_de: Yup.string()
+          .min(2, "Минимум 2 символа")
+          .max(40, "Максимум 40 символов")
+          .required("Обязательное"),
+      }),
     onSubmit: async (values) => {
       try {
         const path = mode === 'Добавить' ? '/api/ingredient' : `/api/ingredient/${id}`;
@@ -76,6 +88,10 @@ function IngredientConstructor({ mode }) {
     navigate(`/admin/categories`);
   };
 
+  const handleAddImage = () => {
+    console.log("Image selected");
+  };
+
   const closePopup = () => setPopupVisible(false);
 
   if (loading) {
@@ -96,28 +112,27 @@ function IngredientConstructor({ mode }) {
           autocomplete="off"
           name="title_ru"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.title_ru}
           placeholder="Заголовок начинки на русском"
           className="input-txt"
         />
+        {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red'>{formik.errors.title_ru}</p> : null}
         <input
           type="text"
           autocomplete="off"
           name="description_ru"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.description_ru}
           placeholder="Описание начинки на русском"
           className="input-txt"
         />
-        <input
-          type="url"
-          autocomplete="off"
-          name="image_ru"
-          onChange={formik.handleChange}
-          value={formik.values.image_ru}
-          placeholder="Ссылка на изображение"
-          className="input-txt"
-        />
+        <label className="text-beige text-xl">
+          Изображение:
+          <ImageInput handleAddImage={handleAddImage} />
+        </label>
+        {formik.touched.image_ru && formik.errors.image_ru ? <p className='text-red'>{formik.errors.image_ru}</p> : null}
       </label>
       <label className="text-beige text-xl">
         Немецкий:
@@ -126,28 +141,27 @@ function IngredientConstructor({ mode }) {
           autocomplete="off"
           name="title_de"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.title_de}
           placeholder="Заголовок начинки на немецком"
           className="input-txt"
         />
+        {formik.touched.title_de && formik.errors.title_de ? <p className='text-red'>{formik.errors.title_de}</p> : null}
         <input
           type="text"
           autocomplete="off"
           name="description_de"
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           value={formik.values.description_de}
           placeholder="Описание начинки на немецком"
           className="input-txt"
         />
-        <input
-          type="text"
-          autocomplete="off"
-          name="image_de"
-          onChange={formik.handleChange}
-          value={formik.values.image_de}
-          placeholder="Ссылка на изображение"
-          className="input-txt"
-        />
+        <label className="text-beige text-xl">
+          Изображение:
+          <ImageInput handleAddImage={handleAddImage} />
+        </label>
+        {formik.touched.image_de && formik.errors.image_de ? <p className='text-red'>{formik.errors.image_de}</p> : null}
       </label>
       <div className="flex justify-between my-4">
         <Button

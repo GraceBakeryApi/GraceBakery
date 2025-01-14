@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import Popup from '../../Popup';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
-import { MoonLoader } from 'react-spinners';
+import * as Yup from "yup";
 import Loading from '../../Loading';
 import ErrorPage from '../../ErrorPage';
 
@@ -49,6 +49,27 @@ function SizeConstructor({ mode }) {
             diameter: '',
             persons: ''
         },
+        validationSchema:
+            Yup.object({
+                title_ru: Yup.string()
+                    .min(2, "Минимум 2 символа")
+                    .max(40, "Максимум 40 символов")
+                    .required("Обязательное"),
+                title_de: Yup.string()
+                    .min(2, "Минимум 2 символа")
+                    .max(40, "Максимум 40 символов")
+                    .required("Обязательное"),
+                mass: Yup.number("Необходимо число (разделитель дроби - точка)")
+                    .positive("Только положительное число")
+                    .required("Обязательное"),
+                diameter: Yup.number("Необходимо число (разделитель дроби - точка)")
+                    .positive("Только положительное число")
+                    .required("Обязательное"),
+                persons: Yup.number()
+                    .integer("Значение должно быть целым числом")
+                    .positive("Только положительное число")
+                    .required("Обязательное"),
+            }),
         onSubmit: async (values) => {
             try {
                 const path = mode === 'Добавить' ? '/api/size' : `/api/size/${id}`;
@@ -94,11 +115,13 @@ function SizeConstructor({ mode }) {
                     autocomplete="off"
                     name="title_ru"
                     onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     value={formik.values.title_ru}
                     placeholder="Заголовок размера на русском"
                     className="input-txt"
                 />
             </label>
+            {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red'>{formik.errors.title_ru}</p> : null}
             <label className="text-beige text-xl">
                 Немецкий:
                 <input
@@ -106,38 +129,46 @@ function SizeConstructor({ mode }) {
                     autocomplete="off"
                     name="title_de"
                     onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     value={formik.values.title_de}
                     placeholder="Заголовок размера на немецком"
                     className="input-txt"
                 />
             </label>
+            {formik.touched.title_de && formik.errors.title_de ? <p className='text-red'>{formik.errors.title_de}</p> : null}
             <input
                 type="number"
                 autocomplete="off"
                 name="mass"
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 value={formik.values.mass}
                 placeholder="Масса"
                 className="input-txt mt-5"
             />
+            {formik.touched.mass && formik.errors.mass ? <p className='text-red'>{formik.errors.mass}</p> : null}
             <input
                 type="number"
                 autocomplete="off"
                 name="diameter"
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 value={formik.values.diameter}
                 placeholder="Диаметр"
                 className="input-txt"
             />
+            {formik.touched.diameter && formik.errors.diameter ? <p className='text-red'>{formik.errors.diameter}</p> : null}
             <input
                 type="number"
                 autocomplete="off"
                 name="persons"
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 value={formik.values.persons}
                 placeholder="Количество людей"
                 className="input-txt"
             />
+            {formik.touched.persons && formik.errors.persons ? <p className='text-red'>{formik.errors.persons}</p> : null}
             <div className="flex justify-between my-4">
                 <Button
                     type="button"
