@@ -15,5 +15,14 @@
             "title": "Über mich",
             "description": "Ich backe seit vielen Jahren Kuchen und würde mich sehr über Ihre Bestellung freuen!"
         }
+    },
+    "footer": {
+        "socialMedia": "SOZIALE NETZWERKE",
+        "customerService": "KUNDENBETREUUNG",
+        "contactUs": "Rückmeldung",
+        "shipping": "Über die Lieferung",
+        "about": "Über mich",
+        "paymentAndDelivery": "Zahlung und Lieferung",
+        "privacy": "Datenschutzbestimmungen"
     }
 }

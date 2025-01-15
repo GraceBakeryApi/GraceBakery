@@ -14,7 +14,7 @@ function NavigationItem({ item }) {
                 }`
             }
         >
-            {t(`navItems.${[item.tKey]}`)}
+            {t(`navItems.${item.tKey}`)}
         </NavLink>
     );
 }

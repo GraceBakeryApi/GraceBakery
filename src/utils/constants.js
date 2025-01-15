@@ -72,7 +72,7 @@ export const adminNavItems = [
             "description_de",
             "description_ru",
             "image",
-            "sizeId",
+            "sizeId", 
             "price"
         ]
     },
