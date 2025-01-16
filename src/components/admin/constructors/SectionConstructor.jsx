@@ -114,10 +114,10 @@ function SectionConstructor({ mode }) {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.title_ru}
-          placeholder='Заголовок раздела на русском'
-          className='input-txt'
+          placeholder='Заголовок раздела на русском (Обязательное)'
+          className='input-txt mt-1 mb-0'
         />
-        {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red'>{formik.errors.title_ru}</p> : null}
+        {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red text-sm'>{formik.errors.title_ru}</p> : null}
         <input
           type="text"
           autocomplete="off"
@@ -126,11 +126,11 @@ function SectionConstructor({ mode }) {
           onBlur={formik.handleBlur}
           value={formik.values.description_ru}
           placeholder='Описание раздела на русском'
-          className='input-txt'
+          className='input-txt mt-2 mb-0'
         />
-        {formik.touched.description_ru && formik.errors.description_ru ? <p className='text-red'>{formik.errors.description_ru}</p> : null}
+        {formik.touched.description_ru && formik.errors.description_ru ? <p className='text-red text-sm'>{formik.errors.description_ru}</p> : null}
       </label>
-      <label className='text-beige text-xl'>
+      <label className='text-beige text-xl block mt-3'>
         Немецкий:
         <input
           type="text"
@@ -139,10 +139,10 @@ function SectionConstructor({ mode }) {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.title_de}
-          placeholder='Заголовок раздела на немецком'
-          className='input-txt'
+          placeholder='Заголовок раздела на немецком (Обязательное)'
+          className='input-txt mt-1 mb-0'
         />
-        {formik.touched.title_de && formik.errors.title_de ? <p className='text-red'>{formik.errors.title_de}</p> : null}
+        {formik.touched.title_de && formik.errors.title_de ? <p className='text-red text-sm'>{formik.errors.title_de}</p> : null}
         <input
           type="text"
           autocomplete="off"
@@ -151,14 +151,14 @@ function SectionConstructor({ mode }) {
           onBlur={formik.handleBlur}
           value={formik.values.description_de}
           placeholder='Описание раздела на немецком'
-          className='input-txt'
+          className='input-txt mt-2 mb-0'
         />
-        {formik.touched.description_de && formik.errors.description_de ? <p className='text-red'>{formik.errors.description_de}</p> : null}
+        {formik.touched.description_de && formik.errors.description_de ? <p className='text-red text-sm'>{formik.errors.description_de}</p> : null}
       </label>
-      <label className="text-beige text-xl">
+      <label className="text-beige text-xl block mt-3">
         Изображение:
-        <ImageInput handleAddImage={handleAddImage} />
       </label>
+      <ImageInput handleAddImage={handleAddImage} />
       <label className='text-xl'>
         <input
           type="checkbox"

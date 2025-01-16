@@ -40,7 +40,7 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id }) 
 
     return (
         <div className="flex justify-between my-2 h-16">
-            <div className="inline mr-8">
+            <div className="inline mr-8 text-beige">
                 {imagePreview ? (
                     <img
                         src={imagePreview}

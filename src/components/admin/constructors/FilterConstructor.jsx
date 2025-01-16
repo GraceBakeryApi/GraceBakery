@@ -103,12 +103,12 @@ function FilterConstructor({ mode }) {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.title_ru}
-          placeholder="Заголовок фильтра на русском"
-          className="input-txt"
+          placeholder="Заголовок фильтра на русском (Обязательное)"
+          className="input-txt mt-1 mb-0"
         />
       </label>
-      {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red'>{formik.errors.title_ru}</p> : null}
-      <label className="text-beige text-xl">
+      {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red text-sm'>{formik.errors.title_ru}</p> : null}
+      <label className="text-beige text-xl block mt-3">
         Немецкий:
         <input
           type="text"
@@ -117,11 +117,11 @@ function FilterConstructor({ mode }) {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.title_de}
-          placeholder="Заголовок фильтра на немецком"
-          className="input-txt"
+          placeholder="Заголовок фильтра на немецком (Обязательное)"
+          className="input-txt mt-1 mb-0"
         />
       </label>
-      {formik.touched.title_de && formik.errors.title_de ? <p className='text-red'>{formik.errors.title_de}</p> : null}
+      {formik.touched.title_de && formik.errors.title_de ? <p className='text-red text-sm'>{formik.errors.title_de}</p> : null}
       <div className="flex justify-between my-4">
         <Button
           type="button"

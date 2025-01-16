@@ -117,12 +117,12 @@ function SizeConstructor({ mode }) {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.title_ru}
-                    placeholder="Заголовок размера на русском"
-                    className="input-txt"
+                    placeholder="Заголовок размера на русском (Обязательное)"
+                    className="input-txt mt-1 mb-0"
                 />
             </label>
-            {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red'>{formik.errors.title_ru}</p> : null}
-            <label className="text-beige text-xl">
+            {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red text-sm'>{formik.errors.title_ru}</p> : null}
+            <label className="text-beige text-xl mt-3 block">
                 Немецкий:
                 <input
                     type="text"
@@ -131,11 +131,11 @@ function SizeConstructor({ mode }) {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.title_de}
-                    placeholder="Заголовок размера на немецком"
-                    className="input-txt"
+                    placeholder="Заголовок размера на немецком (Обязательное)"
+                    className="input-txt mt-1 mb-0"
                 />
             </label>
-            {formik.touched.title_de && formik.errors.title_de ? <p className='text-red'>{formik.errors.title_de}</p> : null}
+            {formik.touched.title_de && formik.errors.title_de ? <p className='text-red text-sm'>{formik.errors.title_de}</p> : null}
             <input
                 type="number"
                 autocomplete="off"
@@ -143,10 +143,10 @@ function SizeConstructor({ mode }) {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.mass}
-                placeholder="Масса"
-                className="input-txt mt-5"
+                placeholder="Масса (Обязательное)"
+                className="input-txt mt-5 mb-0"
             />
-            {formik.touched.mass && formik.errors.mass ? <p className='text-red'>{formik.errors.mass}</p> : null}
+            {formik.touched.mass && formik.errors.mass ? <p className='text-red text-sm'>{formik.errors.mass}</p> : null}
             <input
                 type="number"
                 autocomplete="off"
@@ -154,10 +154,10 @@ function SizeConstructor({ mode }) {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.diameter}
-                placeholder="Диаметр"
-                className="input-txt"
+                placeholder="Диаметр (Обязательное)"
+                className="input-txt mt-2 mb-0"
             />
-            {formik.touched.diameter && formik.errors.diameter ? <p className='text-red'>{formik.errors.diameter}</p> : null}
+            {formik.touched.diameter && formik.errors.diameter ? <p className='text-red text-sm'>{formik.errors.diameter}</p> : null}
             <input
                 type="number"
                 autocomplete="off"
@@ -165,10 +165,10 @@ function SizeConstructor({ mode }) {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.persons}
-                placeholder="Количество людей"
-                className="input-txt"
+                placeholder="Количество людей (Обязательное)"
+                className="input-txt mt-2 mb-0"
             />
-            {formik.touched.persons && formik.errors.persons ? <p className='text-red'>{formik.errors.persons}</p> : null}
+            {formik.touched.persons && formik.errors.persons ? <p className='text-red text-sm'>{formik.errors.persons}</p> : null}
             <div className="flex justify-between my-4">
                 <Button
                     type="button"

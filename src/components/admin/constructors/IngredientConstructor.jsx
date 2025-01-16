@@ -114,10 +114,10 @@ function IngredientConstructor({ mode }) {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.title_ru}
-          placeholder="Заголовок начинки на русском"
-          className="input-txt"
+          placeholder="Заголовок начинки на русском (Обязательное)"
+          className="input-txt mt-1 mb-0"
         />
-        {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red'>{formik.errors.title_ru}</p> : null}
+        {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red text-sm'>{formik.errors.title_ru}</p> : null}
         <input
           type="text"
           autocomplete="off"
@@ -126,15 +126,15 @@ function IngredientConstructor({ mode }) {
           onBlur={formik.handleBlur}
           value={formik.values.description_ru}
           placeholder="Описание начинки на русском"
-          className="input-txt"
+          className="input-txt mt-2 mb-0"
         />
-        <label className="text-beige text-xl">
+        <label className="text-beige text-xl block mt-1 mb-0">
           Изображение:
-          <ImageInput handleAddImage={handleAddImage} />
         </label>
-        {formik.touched.image_ru && formik.errors.image_ru ? <p className='text-red'>{formik.errors.image_ru}</p> : null}
+        <ImageInput handleAddImage={handleAddImage} />
+        {formik.touched.image_ru && formik.errors.image_ru ? <p className='text-red text-sm'>{formik.errors.image_ru}</p> : null}
       </label>
-      <label className="text-beige text-xl">
+      <label className="text-beige text-xl block mt-3">
         Немецкий:
         <input
           type="text"
@@ -143,10 +143,10 @@ function IngredientConstructor({ mode }) {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.title_de}
-          placeholder="Заголовок начинки на немецком"
-          className="input-txt"
+          placeholder="Заголовок начинки на немецком (Обязательное)"
+          className="input-txt mt-1 mb-0"
         />
-        {formik.touched.title_de && formik.errors.title_de ? <p className='text-red'>{formik.errors.title_de}</p> : null}
+        {formik.touched.title_de && formik.errors.title_de ? <p className='text-red text-sm'>{formik.errors.title_de}</p> : null}
         <input
           type="text"
           autocomplete="off"
@@ -155,13 +155,13 @@ function IngredientConstructor({ mode }) {
           onBlur={formik.handleBlur}
           value={formik.values.description_de}
           placeholder="Описание начинки на немецком"
-          className="input-txt"
+          className="input-txt mt-2 mb-0"
         />
-        <label className="text-beige text-xl">
+        <label className="text-beige text-xl block mt-1 mb-0">
           Изображение:
-          <ImageInput handleAddImage={handleAddImage} />
         </label>
-        {formik.touched.image_de && formik.errors.image_de ? <p className='text-red'>{formik.errors.image_de}</p> : null}
+        <ImageInput handleAddImage={handleAddImage} />
+        {formik.touched.image_de && formik.errors.image_de ? <p className='text-red text-sm'>{formik.errors.image_de}</p> : null}
       </label>
       <div className="flex justify-between my-4">
         <Button

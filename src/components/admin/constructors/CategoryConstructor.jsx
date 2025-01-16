@@ -129,9 +129,9 @@ function CategoryConstructor({ mode }) {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.sectionid}
-          className="input-txt"
+          className="input-txt mt-2 mb-0"
         >
-          <option value="">Выберите раздел</option>
+          <option value="">Выберите раздел (Обязательное)</option>
           {activeSections.map((section) => (
             <option className='bg-cream-dark' key={section.id} value={section.id}>
               {section.title_ru}
@@ -144,8 +144,8 @@ function CategoryConstructor({ mode }) {
           ))}
         </select>
       </label>
-      {formik.touched.sectionid && formik.errors.sectionid ? <p className='text-red'>{formik.errors.sectionid}</p> : null}
-      <label className="text-beige text-xl">
+      {formik.touched.sectionid && formik.errors.sectionid ? <p className='text-red text-sm'>{formik.errors.sectionid}</p> : null}
+      <label className="text-beige text-xl block mt-3">
         Русский:
         <input
           type="text"
@@ -154,10 +154,10 @@ function CategoryConstructor({ mode }) {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.title_ru}
-          placeholder="Заголовок категории на русском"
-          className="input-txt"
+          placeholder="Заголовок категории на русском (Обязательное)"
+          className="input-txt mt-1 mb-0"
         />
-        {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red'>{formik.errors.title_ru}</p> : null}
+        {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red text-sm'>{formik.errors.title_ru}</p> : null}
         <input
           type="text"
           autocomplete="off"
@@ -166,11 +166,11 @@ function CategoryConstructor({ mode }) {
           onBlur={formik.handleBlur}
           value={formik.values.description_ru}
           placeholder="Описание категории на русском"
-          className="input-txt"
+          className="input-txt mt-2 mb-0"
         />
-        {formik.touched.description_ru && formik.errors.description_ru ? <p className='text-red'>{formik.errors.description_ru}</p> : null}
+        {formik.touched.description_ru && formik.errors.description_ru ? <p className='text-red text-sm'>{formik.errors.description_ru}</p> : null}
       </label>
-      <label className="text-beige text-xl">
+      <label className="text-beige text-xl block mt-3">
         Немецкий:
         <input
           type="text"
@@ -179,10 +179,10 @@ function CategoryConstructor({ mode }) {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.title_de}
-          placeholder="Заголовок категории на немецком"
-          className="input-txt"
+          placeholder="Заголовок категории на немецком (Обязательное)"
+          className="input-txt mt-1 mb-0"
         />
-        {formik.touched.title_de && formik.errors.title_de ? <p className='text-red'>{formik.errors.title_de}</p> : null}
+        {formik.touched.title_de && formik.errors.title_de ? <p className='text-red text-sm'>{formik.errors.title_de}</p> : null}
         <input
           type="text"
           autocomplete="off"
@@ -191,14 +191,14 @@ function CategoryConstructor({ mode }) {
           onBlur={formik.handleBlur}
           value={formik.values.description_de}
           placeholder="Описание категории на немецком"
-          className="input-txt"
+          className="input-txt mt-2 mb-0"
         />
-        {formik.touched.description_de && formik.errors.description_de ? <p className='text-red'>{formik.errors.description_de}</p> : null}
+        {formik.touched.description_de && formik.errors.description_de ? <p className='text-red text-sm'>{formik.errors.description_de}</p> : null}
       </label>
       <label className="text-beige text-xl">
         Изображение:
-        <ImageInput handleAddImage={handleAddImage} />
       </label>
+      <ImageInput handleAddImage={handleAddImage} />
       <label className="text-xl">
         <input
           type="checkbox"
