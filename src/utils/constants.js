@@ -28,7 +28,8 @@ export const adminNavItems = [
             "description_ru",
             "image",
             "isActive"
-        ]
+        ],
+        deletable: false
     },
     {
         title: 'Категории',
@@ -43,7 +44,8 @@ export const adminNavItems = [
             "description_ru",
             "image",
             "isActive"
-        ]
+        ],
+        deletable: false
     },
     {
         title: 'Продукты',
@@ -51,15 +53,14 @@ export const adminNavItems = [
         constructor: ProductConstructor,
         columns: [
             "id",
-            "sectionid",
             "categoryid",
             "title_de",
             "title_ru",
             "description_de",
             "description_ru",
-            "image",
             "isActive"
-        ]
+        ],
+        deletable: false
     },
     {
         title: 'Опции',
@@ -74,7 +75,8 @@ export const adminNavItems = [
             "image",
             "sizeId", 
             "price"
-        ]
+        ],
+        deletable: null
     },
     {
         title: 'Размеры',
@@ -87,7 +89,8 @@ export const adminNavItems = [
             "mass",
             "diameter",
             "persons"
-        ]
+        ],
+        deletable: null
     },
     {
         title: 'Фильтры',
@@ -97,7 +100,8 @@ export const adminNavItems = [
             "id",
             "title_de",
             "title_ru"
-        ]
+        ],
+        deletable: true
     },
     {
         title: 'Начинки',
@@ -112,6 +116,7 @@ export const adminNavItems = [
             "description_ru",
             "image_de",
             "image_ru"
-        ]
+        ],
+        deletable: null
     },
 ]

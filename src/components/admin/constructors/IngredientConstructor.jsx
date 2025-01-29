@@ -17,32 +17,6 @@ function IngredientConstructor({ mode }) {
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
 
-  useEffect(() => {
-    const fetchUpdate = async () => {
-      try {
-        if (id) {
-          const response = await fetch(`/api/ingredient/${id}`);
-          if (!response.ok) throw new Error('Не удалось загрузить начинку');
-          const data = await response.json();
-          formik.setValues({
-            title_ru: data.title_ru || '',
-            title_de: data.title_de || '',
-            description_ru: data.description_ru || '',
-            description_de: data.description_de || '',
-            image_ru: data.image_ru || '',
-            image_de: data.image_de || ''
-          });
-        }
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    };
-
-    fetchUpdate();
-  }, [id]);
-
   const formik = useFormik({
     initialValues: {
       title_ru: '',
@@ -83,6 +57,32 @@ function IngredientConstructor({ mode }) {
       setPopupVisible(true);
     },
   });
+
+  useEffect(() => {
+    const fetchUpdate = async () => {
+      try {
+        if (id) {
+          const response = await fetch(`/api/ingredient/${id}`);
+          if (!response.ok) throw new Error('Не удалось загрузить начинку');
+          const data = await response.json();
+          formik.setValues({
+            title_ru: data.title_ru || '',
+            title_de: data.title_de || '',
+            description_ru: data.description_ru || '',
+            description_de: data.description_de || '',
+            image_ru: data.image_ru || '',
+            image_de: data.image_de || ''
+          });
+        }
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchUpdate();
+  }, [id, formik]);
 
   const handleCancel = () => {
     navigate(`/admin/categories`);
@@ -131,7 +131,13 @@ function IngredientConstructor({ mode }) {
         <label className="text-beige text-xl block mt-1 mb-0">
           Изображение:
         </label>
-        <ImageInput handleAddImage={handleAddImage} />
+
+        <ImageInput
+          formik={formik}
+          singleMode={true}
+          instanceName="ingredient_id_ru"
+        />
+
         {formik.touched.image_ru && formik.errors.image_ru ? <p className='text-red text-sm'>{formik.errors.image_ru}</p> : null}
       </label>
       <label className="text-beige text-xl block mt-3">
@@ -160,7 +166,13 @@ function IngredientConstructor({ mode }) {
         <label className="text-beige text-xl block mt-1 mb-0">
           Изображение:
         </label>
-        <ImageInput handleAddImage={handleAddImage} />
+
+        <ImageInput
+          formik={formik}
+          singleMode={true}
+          instanceName="ingredient_id_de"
+        />
+
         {formik.touched.image_de && formik.errors.image_de ? <p className='text-red text-sm'>{formik.errors.image_de}</p> : null}
       </label>
       <div className="flex justify-between my-4">

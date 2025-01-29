@@ -19,56 +19,6 @@ function OptionConstructor({ mode }) {
   const [popupMessage, setPopupMessage] = useState('');
   const [sizes, setSizes] = useState([]);
 
-  useEffect(() => {
-    fetch(`/api/sizes`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Не удалось получить размеры');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setSizes(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-
-    const fetchUpdate = async () => {
-      try {
-        if (id) {
-          const response = await fetch(`/api/option/${id}`);
-          if (!response.ok) throw new Error('Не удалось загрузить опцию');
-          const data = await response.json();
-
-          // Подготовим значения для формы
-          const sizeprices = data.sizeprices.map((item) => ({
-            price: item.price || '',
-            sizeid: item.sizeid || '',
-            selected: false // Добавляем поле для выбора
-          }));
-
-          formik.setValues({
-            title_ru: data.title_ru || '',
-            title_de: data.title_de || '',
-            description_ru: data.description_ru || '',
-            description_de: data.description_de || '',
-            image: data.image || '',
-            sizeprices: sizeprices || []  // Массив с объектами price и sizeid
-          });
-        }
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    };
-
-    fetchUpdate();
-  }, [id]);
-
   const formik = useFormik({
     initialValues: {
       title_ru: '',
@@ -118,6 +68,55 @@ function OptionConstructor({ mode }) {
       setPopupVisible(true);
     },
   });
+
+  useEffect(() => {
+    fetch(`/api/sizes`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Не удалось получить размеры');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setSizes(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+
+    const fetchUpdate = async () => {
+      try {
+        if (id) {
+          const response = await fetch(`/api/option/${id}`);
+          if (!response.ok) throw new Error('Не удалось загрузить опцию');
+          const data = await response.json();
+
+          const sizeprices = data.sizeprices.map((item) => ({
+            price: item.price || '',
+            sizeid: item.sizeid || '',
+            selected: false
+          }));
+
+          formik.setValues({
+            title_ru: data.title_ru || '',
+            title_de: data.title_de || '',
+            description_ru: data.description_ru || '',
+            description_de: data.description_de || '',
+            image: data.image || '',
+            sizeprices: sizeprices || []
+          });
+        }
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchUpdate();
+  }, [id, formik]);
 
   const handleCancel = () => {
     navigate(`/admin/categories`);
@@ -203,7 +202,12 @@ function OptionConstructor({ mode }) {
       <label className="text-beige text-xl block mt-3">
         Изображение:
       </label>
-      <ImageInput handleAddImage={handleAddImage} />
+
+      <ImageInput
+        formik={formik}
+        singleMode={true}
+        instanceName="option_id"
+      />
 
       <div className="text-beige text-xl justify-between">
         <label>Размеры и цены:</label>

@@ -21,6 +21,51 @@ function CategoryConstructor({ mode }) {
 
   const closePopup = () => setPopupVisible(false);
 
+  const formik = useFormik({
+    initialValues: {
+      sectionid: '',
+      title_ru: '',
+      title_de: '',
+      description_ru: '',
+      description_de: '',
+      image: '',
+      isActive: true,
+    },
+    validationSchema:
+      Yup.object({
+        sectionid: Yup.string()
+          .required("Обязательное"),
+        title_ru: Yup.string()
+          .min(2, "Минимум 2 символа")
+          .max(40, "Максимум 40 символов")
+          .required("Обязательное"),
+        title_de: Yup.string()
+          .min(2, "Минимум 2 символа")
+          .max(40, "Максимум 40 символов")
+          .required("Обязательное"),
+      }),
+    onSubmit: async (values) => {
+      try {
+        console.log('values: ' + JSON.stringify(values));
+        const path = mode === 'Добавить' ? '/api/category' : `/api/category/${id}`;
+        const response = await fetch(path, {
+          method: mode === 'Добавить' ? 'POST' : 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(values),
+        });
+        if (response.ok) {
+          setPopupMessage('Успешно');
+          if (mode === 'Добавить') formik.resetForm();
+        } else {
+          setPopupMessage('Ошибка');
+        }
+      } catch (error) {
+        setPopupMessage('Не удалось подключиться к серверу.');
+      }
+      setPopupVisible(true);
+    },
+  });
+
   useEffect(() => {
     const fetchSections = async () => {
       try {
@@ -59,56 +104,8 @@ function CategoryConstructor({ mode }) {
     fetchSections();
   }, [id]);
 
-  const formik = useFormik({
-    initialValues: {
-      sectionid: '',
-      title_ru: '',
-      title_de: '',
-      description_ru: '',
-      description_de: '',
-      image: '',
-      isActive: true,
-    },
-    validationSchema:
-      Yup.object({
-        sectionid: Yup.string()
-          .required("Обязательное"),
-        title_ru: Yup.string()
-          .min(2, "Минимум 2 символа")
-          .max(40, "Максимум 40 символов")
-          .required("Обязательное"),
-        title_de: Yup.string()
-          .min(2, "Минимум 2 символа")
-          .max(40, "Максимум 40 символов")
-          .required("Обязательное"),
-      }),
-    onSubmit: async (values) => {
-      try {
-        const path = mode === 'Добавить' ? '/api/category' : `/api/category/${id}`;
-        const response = await fetch(path, {
-          method: mode === 'Добавить' ? 'POST' : 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values),
-        });
-        if (response.ok) {
-          setPopupMessage('Успешно');
-          if (mode === 'Добавить') formik.resetForm();
-        } else {
-          setPopupMessage('Ошибка');
-        }
-      } catch (error) {
-        setPopupMessage('Не удалось подключиться к серверу.');
-      }
-      setPopupVisible(true);
-    },
-  });
-
   const handleCancel = () => {
     navigate(`/admin/categories`);
-  };
-
-  const handleAddImage = () => {
-    console.log("Image selected");
   };
 
   if (loading) {
@@ -138,7 +135,7 @@ function CategoryConstructor({ mode }) {
             </option>
           ))}
           {inactiveSections.map((section) => (
-            <option className='bg-red-dark' key={section.id} value={section.id}>
+            <option className='bg-red-dark text-cream-dark' key={section.id} value={section.id}>
               {section.title_ru}
             </option>
           ))}
@@ -195,11 +192,17 @@ function CategoryConstructor({ mode }) {
         />
         {formik.touched.description_de && formik.errors.description_de ? <p className='text-red text-sm'>{formik.errors.description_de}</p> : null}
       </label>
-      <label className="text-beige text-xl">
+      <label className="text-beige text-xl block mt-3">
         Изображение:
       </label>
-      <ImageInput handleAddImage={handleAddImage} />
-      <label className="text-xl">
+
+      <ImageInput
+        formik={formik}
+        singleMode={true}
+        instanceName="category_id"
+      />
+
+      <label className="text-beige text-xl block mt-1">
         <input
           type="checkbox"
           autocomplete="off"

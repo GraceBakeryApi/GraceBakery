@@ -15,7 +15,6 @@ import {
     TablePagination,
     Button,
 } from "@mui/material";
-import { MoonLoader } from "react-spinners";
 import Popup from "../Popup";
 import Loading from "../Loading";
 import ErrorPage from "../ErrorPage";
@@ -109,8 +108,100 @@ function AdminTable({ items }) {
         setPage(0);
     };
 
-    const handleDelete = () => {
-        console.log("Удаление выбранных строк:", selected);
+    const handleDelete = async () => {
+        if (!currentItem || selected.length === 0) return;
+
+        try {
+            if (currentItem.deletable === null) return;
+
+            if (currentItem.deletable === false) {
+                const selectedRows = data.filter(row => selected.includes(row.id));
+                const allInactive = selectedRows.every(row => row.isActive === false);
+                const newState = allInactive;
+
+                const singularPath = currentItem.path.endsWith('s')
+                    ? currentItem.path.slice(0, -1)
+                    : currentItem.path;
+
+                const promises = selected.map(async (id) => {
+                    const response = await fetch(
+                        `/api${singularPath}/${id}/isactive/${newState}`,
+                        {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        }
+                    );
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(
+                            `Ошибка ${response.status}: ${errorText || 'Неизвестная ошибка'}`
+                        );
+                    }
+                    const updatedItem = await response.json();
+                    return updatedItem;
+                });
+
+                const updatedItems = await Promise.all(promises);
+
+                const updatedData = data.map(row => {
+                    const updatedItem = updatedItems.find(item => item.id === row.id);
+                    return updatedItem || row;
+                });
+                setData(updatedData);
+            }
+            else {
+                const singularPath = currentItem.path.endsWith('s')
+                    ? currentItem.path.slice(0, -1)
+                    : currentItem.path;
+
+                const promises = selected.map(async (id) => {
+                    const response = await fetch(`/api${singularPath}/${id}`, {
+                        method: 'DELETE',
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(
+                            `Ошибка ${response.status}: ${errorText || 'Неизвестная ошибка'}`
+                        );
+                    }
+
+                    const deletedItem = await response.json();
+                    return deletedItem;
+                });
+
+                await Promise.all(promises);
+
+                const updatedData = data.filter(row => !selected.includes(row.id));
+                setData(updatedData);
+            }
+
+            setSelected([]);
+            setPopupMessage("Операция выполнена успешно");
+            setPopupVisible(true);
+
+        } catch (error) {
+            console.error('Error:', error);
+            setPopupMessage(`Ошибка: ${error.message}`);
+            setPopupVisible(true);
+        }
+    };
+
+    const getDeleteButtonText = () => {
+        if (currentItem.deletable === true) {
+            return "Удалить выбранные";
+        }
+
+        if (currentItem.deletable === false) {
+            const selectedRows = data.filter(row => selected.includes(row.id));
+            const allInactive = selectedRows.every(row => row.isActive === false);
+            return allInactive ? "Активировать выбранные" : "Деактивировать выбранные";
+        }
+
+        return ""; //Для null-ов
     };
 
     const handleEdit = () => {
@@ -145,17 +236,21 @@ function AdminTable({ items }) {
                         color="secondary"
                         onClick={handleEdit}
                         disabled={selected.length !== 1}
+                        sx={{ marginLeft: 1 }}
                     >
                         Редактировать
                     </Button>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        onClick={handleDelete}
-                        disabled={selected.length === 0}
-                    >
-                        Удалить выбранные
-                    </Button>
+                    {currentItem.deletable !== null && (
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={handleDelete}
+                            disabled={selected.length === 0}
+                            sx={{ marginLeft: 1 }}
+                        >
+                            {getDeleteButtonText()}
+                        </Button>
+                    )}
                 </div>
             </Toolbar>
             <TableContainer>
@@ -217,6 +312,10 @@ function AdminTable({ items }) {
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
+                labelRowsPerPage="Строк на страницу:"
+                labelDisplayedRows={({ from, to, count }) =>
+                    `${from}–${to} из ${count}`
+                }
             />
             {isPopupVisible && <Popup message={popupMessage} onClose={closePopup} />}
         </Paper>

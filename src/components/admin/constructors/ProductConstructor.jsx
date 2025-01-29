@@ -7,6 +7,7 @@ import * as Yup from "yup";
 import Loading from '../../Loading';
 import ErrorPage from '../../ErrorPage';
 import ImageInput from './ImageInput';
+import SizePriceInput from './SizePriceInput';
 
 function ProductConstructor({ mode }) {
   const location = useLocation();
@@ -15,9 +16,9 @@ function ProductConstructor({ mode }) {
   const [activeCategories, setActiveCategories] = useState([]);
   const [inactiveCategories, setInactiveCategories] = useState([]);
   const [options, setOptions] = useState([]);
-  const [sizes, setSizes] = useState([]);
   const [filters, setFilters] = useState([]);
   const [ingredients, setIngredients] = useState([]);
+  const [sizes, setSizes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isPopupVisible, setPopupVisible] = useState(false);
@@ -25,8 +26,7 @@ function ProductConstructor({ mode }) {
   const [dropdownOpen, setDropdownOpen] = useState({
     ingredients: false,
     options: false,
-    filters: false,
-    sizes: false,
+    filters: false
   });
   const [imageInputs, setImageInputs] = useState([]);
   const [nextId, setNextId] = useState(0);
@@ -34,25 +34,39 @@ function ProductConstructor({ mode }) {
   const closePopup = () => setPopupVisible(false);
 
   useEffect(() => {
+    fetch(`/api/sizes`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Не удалось получить размеры');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setSizes(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+
     const fetchData = async () => {
       try {
-        const [categoriesActiveRes, categoriesInactiveRes, sizesRes, optionsRes, filtersRes, ingredientsRes] = await Promise.all([
+        const [categoriesActiveRes, categoriesInactiveRes, optionsRes, filtersRes, ingredientsRes] = await Promise.all([
           fetch('/api/categories/isactive/true'),
           fetch('/api/categories/isactive/false'),
-          fetch('/api/sizes'),
           fetch('/api/options'),
           fetch('/api/filters'),
           fetch('/api/ingredients'),
         ]);
 
-        if (!categoriesActiveRes.ok || !categoriesInactiveRes.ok || !sizesRes.ok || !optionsRes.ok || !filtersRes.ok || !ingredientsRes.ok) {
+        if (!categoriesActiveRes.ok || !categoriesInactiveRes.ok || !optionsRes.ok || !filtersRes.ok || !ingredientsRes.ok) {
           throw new Error('Ошибка загрузки данных');
         }
 
-        const [categoriesActive, categoriesInactive, sizesData, optionsData, filtersData, ingredientsData] = await Promise.all([
+        const [categoriesActive, categoriesInactive, optionsData, filtersData, ingredientsData] = await Promise.all([
           categoriesActiveRes.json(),
           categoriesInactiveRes.json(),
-          sizesRes.json(),
           optionsRes.json(),
           filtersRes.json(),
           ingredientsRes.json(),
@@ -60,7 +74,6 @@ function ProductConstructor({ mode }) {
 
         setActiveCategories(categoriesActive);
         setInactiveCategories(categoriesInactive);
-        setSizes(sizesData);
         setOptions(optionsData);
         setFilters(filtersData);
         setIngredients(ingredientsData);
@@ -73,22 +86,66 @@ function ProductConstructor({ mode }) {
 
     const fetchUpdate = async () => {
       try {
-        if (id) {
-          const response = await fetch(`/api/product/${id}`);
-          if (!response.ok) throw new Error('Не удалось загрузить продукт');
-          const data = await response.json();
-          formik.setValues({
-            categoryid: data.categoryid || '',
-            title_ru: data.title_ru || '',
-            title_de: data.title_de || '',
-            description_ru: data.description_ru || '',
-            description_de: data.description_de || '',
-            image: data.image || '',
-            isActive: data.isActive || false
-          });
+        if (!id) {
+          setLoading(false);
+          return;
         }
+
+        const response = await fetch(`/api/product/${id}`);
+        if (!response.ok) {
+          throw new Error('Не удалось загрузить продукт');
+        }
+
+        const data = await response.json();
+        let formattedImages = [];
+
+        //Images
+        if (data.image && Array.isArray(data.image) && data.image.length > 0) {
+          const initialImageInputs = data.image.map(img => ({
+            id: img.id
+          }));
+          setImageInputs(initialImageInputs);
+
+          const imageIds = data.image.map(img => img.id);
+          const nextIdValue = Math.max(...imageIds, 0) + 1;
+          setNextId(nextIdValue);
+
+          formattedImages = data.image.map(img => ({
+            id: img.id,
+            url: `/api/images/${img.image.split('\\').pop()}`
+          }));
+        }
+
+        //SizePrices
+        const sizeprices = Array.isArray(data.sizeprices)
+          ? data.sizeprices.map(item => ({
+            price: item.price || '',
+            sizeid: item.sizeid || '',
+            selected: false
+          }))
+          : [];
+
+        const selectedIngredients = data.ingredients?.map(item => item.id) || [];
+        const selectedOptions = data.bakeryoptionals?.map(item => item.id) || [];
+        const selectedFilters = data.filters?.map(item => item.id) || [];
+
+        formik.setValues({
+          categoryid: data.categoryid?.toString() || '',
+          title_ru: data.title_ru || '',
+          title_de: data.title_de || '',
+          description_ru: data.description_ru || '',
+          description_de: data.description_de || '',
+          image: formattedImages,
+          isActive: Boolean(data.isActive),
+          sizeprices: sizeprices,
+          ingredients: selectedIngredients,
+          options: selectedOptions,
+          filters: selectedFilters
+        });
+
         setLoading(false);
       } catch (err) {
+        console.error('Error fetching product:', err);
         setError(err.message);
         setLoading(false);
       }
@@ -100,13 +157,13 @@ function ProductConstructor({ mode }) {
 
   const formik = useFormik({
     initialValues: {
-      categoryid: '',
+      categoryid: null,
       title_ru: '',
       title_de: '',
       description_ru: '',
       description_de: '',
       image: [],
-      sizes: [],
+      sizeprices: [],
       ingredients: [],
       options: [],
       filters: [],
@@ -126,29 +183,54 @@ function ProductConstructor({ mode }) {
       image: Yup.array()
         .min(1, "Должно быть хотя бы одно изображение")
         .max(20, "Не может быть больше 20 изображений"),
-      sizes: Yup.array()
-        .min(1, "Должнен быть хотя бы 1 размер")
-        .required("Обязательное"),
       ingredients: Yup.array()
         .min(1, "Должна быть хотя бы одна начинка")
         .required("Обязательное"),
+      sizeprices: Yup.array().of(
+        Yup.object().shape({
+          price: Yup.number()
+            .positive("Только положительное число")
+            .required("Обязательное"),
+          sizeid: Yup.string()
+            .required("Обязательное")
+        })
+      ).min(1, "Необходимо выбрать хотя бы один размер и цену")
     }),
     onSubmit: async (values) => {
       try {
+        const formattedValues = {
+          ...values,
+          categoryid: Number(values.categoryid),
+          ingredients: values.ingredients?.map(id => ({ id })) || [],
+          bakeryoptionals: values.options?.map(id => ({ id })) || [],
+          filters: values.filters?.map(id => ({ id })) || [],
+          sizeprices: values.sizeprices
+            .filter(sp => sp.sizeid && sp.price)
+            .map(sp => ({
+              sizeid: Number(sp.sizeid),
+              price: Number(sp.price)
+            }))
+        };
+
+        console.log('Отправляемые данные:', formattedValues);
+
         const path = mode === 'Добавить' ? '/api/product' : `/api/product/${id}`;
         const response = await fetch(path, {
           method: mode === 'Добавить' ? 'POST' : 'PUT',
-          headers: { 'Content-Type': 'multipart/form-data' },
-          body: JSON.stringify(values),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formattedValues),
         });
-        if (response.ok) {
-          setPopupMessage('Успешно');
-          if (mode === 'Добавить') formik.resetForm();
-        } else {
-          setPopupMessage('Ошибка');
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Ошибка сервера');
         }
+
+        setPopupMessage('Успешно');
+        if (mode === 'Добавить') formik.resetForm();
       } catch (error) {
-        setPopupMessage('Не удалось подключиться к серверу.');
+        console.error('Error:', error);
+        setPopupMessage(error.message || 'Не удалось подключиться к серверу.');
       }
       setPopupVisible(true);
     },
@@ -216,13 +298,31 @@ function ProductConstructor({ mode }) {
 
   const addImageInput = () => {
     if (imageInputs.length < 10) {
-      setImageInputs((prev) => [...prev, { id: nextId }]);
-      setNextId((prevId) => prevId + 1);
+      const newId = nextId;
+      setImageInputs(prev => [...prev, { id: newId }]);
+      setNextId(prevId => prevId + 1);
+
+      formik.setFieldValue('image', [
+        ...formik.values.image,
+        { id: newId, url: '' }
+      ]);
     }
   };
 
   const handleImageDelete = (idToRemove) => {
-    setImageInputs((prev) => prev.filter((input) => input.id !== idToRemove));
+    setImageInputs(prev => prev.filter(input => input.id !== idToRemove));
+    formik.setFieldValue(
+      'image',
+      formik.values.image.filter(img => img.id !== idToRemove)
+    );
+  };
+
+  //Для SizePrice
+  const getAvailableSizes = (index) => {
+    const selectedSizeIds = formik.values.sizeprices
+      .filter((_, i) => i !== index && formik.values.sizeprices[i].sizeid)
+      .map(item => item.sizeid);
+    return sizes.filter(size => !selectedSizeIds.includes(size.id));
   };
 
   if (loading) {
@@ -252,7 +352,7 @@ function ProductConstructor({ mode }) {
             </option>
           ))}
           {inactiveCategories.map((category) => (
-            <option className='bg-red-dark' key={category.id} value={category.id}>
+            <option className='bg-red-dark text-cream-dark' key={category.id} value={category.id}>
               {category.title_ru}
             </option>
           ))}
@@ -265,6 +365,7 @@ function ProductConstructor({ mode }) {
           id="title_ru"
           name="title_ru"
           type="text"
+          autocomplete="off"
           placeholder="Заголовок продукта на русском (Обязательное)"
           className="input-txt w-full mt-1 mb-0"
           value={formik.values.title_ru}
@@ -272,6 +373,17 @@ function ProductConstructor({ mode }) {
           onBlur={formik.handleBlur}
         />
         {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red text-sm'>{formik.errors.title_ru}</p> : null}
+        <input
+          id="description_ru"
+          name="description_ru"
+          type="text"
+          autocomplete="off"
+          placeholder="Описание продукта на русском"
+          className="input-txt w-full mt-2 mb-0"
+          value={formik.values.description_ru}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+        />
       </label>
 
       <label className="text-beige text-xl block mt-3">
@@ -280,6 +392,7 @@ function ProductConstructor({ mode }) {
           id="title_de"
           name="title_de"
           type="text"
+          autocomplete="off"
           placeholder="Заголовок продукта на немецком (Обязательное)"
           className="input-txt w-full mt-1 mb-0"
           value={formik.values.title_de}
@@ -287,6 +400,17 @@ function ProductConstructor({ mode }) {
           onBlur={formik.handleBlur}
         />
         {formik.touched.title_de && formik.errors.title_de ? <p className='text-red text-sm'>{formik.errors.title_de}</p> : null}
+        <input
+          id="description_de"
+          name="description_de"
+          type="text"
+          autocomplete="off"
+          placeholder="Описание продукта на немецком"
+          className="input-txt w-full mt-2 mb-0"
+          value={formik.values.description_de}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+        />
       </label>
 
       <div className="mt-4">
@@ -295,8 +419,11 @@ function ProductConstructor({ mode }) {
           <ImageInput
             key={input.id}
             id={input.id}
+            formik={formik}
             deleteText='Удалить'
             handleImageDelete={handleImageDelete}
+            instanceId={id ? id : 0}
+            instanceName='product_id'
           />
         ))}
         <div className="flex">
@@ -307,17 +434,66 @@ function ProductConstructor({ mode }) {
             sx={{ flexGrow: 1, marginRight: 0, marginTop: 0 }}
             disabled={imageInputs.length >= 10}
           >
-            Добавить изображение
+            Добавить {imageInputs.length > 0 ? '' : "главное "}изображение
+          </Button>
+        </div>
+        {formik.errors.images ? <p className='text-red text-sm'>{formik.errors.images}</p> : null}
+      </div>
+
+      {/* SizePrice */}
+      <div className="text-beige text-xl justify-between">
+        <label>Размеры и цены:</label>
+        {formik.values.sizeprices.map((sizePrice, index) => (
+          <SizePriceInput
+            key={index}
+            sizePrice={sizePrice}
+            index={index}
+            getAvailableSizes={getAvailableSizes}
+            formik={formik}
+            handleDelete={(idx) => {
+              const updatedSizeprices = [...formik.values.sizeprices];
+              updatedSizeprices.splice(idx, 1);
+              formik.setFieldValue('sizeprices', updatedSizeprices);
+            }}
+          />
+        ))}
+        <div className="flex">
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => {
+              formik.setFieldValue('sizeprices', [...formik.values.sizeprices, { price: '', sizeid: '', selected: false }]);
+            }}
+            sx={{ flexGrow: 1, marginRight: 0, marginTop: 0 }}
+          >
+            Добавить размер
           </Button>
         </div>
       </div>
+      {formik.touched.sizeprices && formik.errors.sizeprices ?
+        <p className='text-red text-sm'>
+          {typeof formik.errors.sizeprices === 'string'
+            ? formik.errors.sizeprices
+            : 'Пожалуйста, проверьте правильность заполнения размеров и цен'}
+        </p>
+        : null}
 
-      <div className="mt-4">
-        {renderDropdown('sizes', sizes)}
+      <div className="mt-3">
         {renderDropdown('ingredients', ingredients)}
         {renderDropdown('options', options)}
         {renderDropdown('filters', filters)}
       </div>
+      <label className="text-beige text-xl block mt-1">
+        <input
+          type="checkbox"
+          autocomplete="off"
+          name="isActive"
+          onChange={formik.handleChange}
+          checked={formik.values.isActive}
+          className="mt-5 mr-2"
+        />
+        Сделать активным
+      </label>
 
       <div className="flex justify-between my-4">
         <Button

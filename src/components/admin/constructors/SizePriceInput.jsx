@@ -2,7 +2,6 @@ import React from 'react';
 import { Button } from '@mui/material';
 
 function SizePriceInput({
-    sizePrice,
     index,
     getAvailableSizes,
     formik,
@@ -11,8 +10,8 @@ function SizePriceInput({
     return (
         <div className="flex items-center my-2">
             <select
-                name={`sizeprices[${index}].sizeid`}
-                value={sizePrice.sizeid}
+                name={`sizeprices.${index}.sizeid`}
+                value={formik.values.sizeprices[index]?.sizeid || ''}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className="input-txt mr-2 my-0"
@@ -27,8 +26,8 @@ function SizePriceInput({
             -
             <input
                 type="number"
-                name={`sizeprices[${index}].price`}
-                value={sizePrice.price}
+                name={`sizeprices.${index}.price`}
+                value={formik.values.sizeprices[index]?.price || ''}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 placeholder="Цена"

@@ -16,31 +16,6 @@ function SizeConstructor({ mode }) {
     const [isPopupVisible, setPopupVisible] = useState(false);
     const [popupMessage, setPopupMessage] = useState('');
 
-    useEffect(() => {
-        const fetchUpdate = async () => {
-            try {
-                if (id) {
-                    const response = await fetch(`/api/size/${id}`);
-                    if (!response.ok) throw new Error('Не удалось загрузить размер');
-                    const data = await response.json();
-                    formik.setValues({
-                        title_ru: data.title_ru || '',
-                        title_de: data.title_de || '',
-                        mass: data.mass || '',
-                        diameter: data.diameter || '',
-                        persons: data.persons || ''
-                    });
-                }
-                setLoading(false);
-            } catch (err) {
-                setError(err.message);
-                setLoading(false);
-            }
-        };
-
-        fetchUpdate();
-    }, [id]);
-
     const formik = useFormik({
         initialValues: {
             title_ru: '',
@@ -90,6 +65,31 @@ function SizeConstructor({ mode }) {
             setPopupVisible(true);
         },
     });
+
+    useEffect(() => {
+        const fetchUpdate = async () => {
+            try {
+                if (id) {
+                    const response = await fetch(`/api/size/${id}`);
+                    if (!response.ok) throw new Error('Не удалось загрузить размер');
+                    const data = await response.json();
+                    formik.setValues({
+                        title_ru: data.title_ru || '',
+                        title_de: data.title_de || '',
+                        mass: data.mass || '',
+                        diameter: data.diameter || '',
+                        persons: data.persons || ''
+                    });
+                }
+                setLoading(false);
+            } catch (err) {
+                setError(err.message);
+                setLoading(false);
+            }
+        };
+
+        fetchUpdate();
+    }, [id, formik]);
 
     const handleCancel = () => {
         navigate(`/admin/categories`);

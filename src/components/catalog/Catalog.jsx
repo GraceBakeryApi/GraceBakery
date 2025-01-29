@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Typography, Box } from '@mui/material';
 import Categories from './Categories';
 import Items from './Items';
+import ProductPage from './ProductPage';
 
 const Catalog = () => {
     const [categories, setCategories] = useState([]);
@@ -41,24 +42,27 @@ const Catalog = () => {
     };
 
     const filteredItems = selectedCategory ? items : [];
-
+    const test = true;
     return (
-        <Box p={3}>
-            <Typography variant="h4" gutterBottom>
-                Catalog
-            </Typography>
+        <div>
+            {test && (<ProductPage />)}
+            {!test && (<Box p={3}>
+                <Typography variant="h4" gutterBottom>
+                    Catalog
+                </Typography>
 
-            <Categories
-                categories={categories}
-                onCategorySelect={handleCategorySelect}
-            />
+                <Categories
+                    categories={categories}
+                    onCategorySelect={handleCategorySelect}
+                />
 
-            <Typography variant="h5" gutterBottom mt={3}>
-                Items
-            </Typography>
+                <Typography variant="h5" gutterBottom mt={3}>
+                    Items
+                </Typography>
 
-            <Items items={filteredItems} />
-        </Box>
+                <Items items={filteredItems} />
+            </Box>)}
+        </div>
     );
 };
 

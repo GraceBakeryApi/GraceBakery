@@ -17,32 +17,6 @@ function SectionConstructor({ mode }) {
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
 
-  useEffect(() => {
-    const fetchUpdate = async () => {
-      try {
-        if (id) {
-          const response = await fetch(`/api/section/${id}`);
-          if (!response.ok) throw new Error('Не удалось загрузить раздел');
-          const data = await response.json();
-          formik.setValues({
-            title_ru: data.title_ru || '',
-            title_de: data.title_de || '',
-            description_ru: data.description_ru || '',
-            description_de: data.description_de || '',
-            image: data.image || '',
-            isActive: data.isActive || false
-          });
-        }
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    };
-
-    fetchUpdate();
-  }, [id]);
-
   const formik = useFormik({
     initialValues: {
       title_de: "",
@@ -84,12 +58,34 @@ function SectionConstructor({ mode }) {
     },
   });
 
+  useEffect(() => {
+    const fetchUpdate = async () => {
+      try {
+        if (id) {
+          const response = await fetch(`/api/section/${id}`);
+          if (!response.ok) throw new Error('Не удалось загрузить раздел');
+          const data = await response.json();
+          formik.setValues({
+            title_ru: data.title_ru || '',
+            title_de: data.title_de || '',
+            description_ru: data.description_ru || '',
+            description_de: data.description_de || '',
+            image: data.image || '',
+            isActive: data.isActive || false
+          });
+        }
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchUpdate();
+  }, [id]);
+
   const handleCancel = () => {
     navigate(`/admin/categories`);
-  };
-
-  const handleAddImage = () => {
-    console.log("Image selected");
   };
 
   const closePopup = () => setPopupVisible(false);
@@ -158,8 +154,14 @@ function SectionConstructor({ mode }) {
       <label className="text-beige text-xl block mt-3">
         Изображение:
       </label>
-      <ImageInput handleAddImage={handleAddImage} />
-      <label className='text-xl'>
+
+      <ImageInput
+        formik={formik}
+        singleMode={true}
+        instanceName="section_id"
+      />
+
+      <label className="text-beige text-xl block mt-1">
         <input
           type="checkbox"
           autocomplete="off"
