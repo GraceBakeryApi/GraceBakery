@@ -88,6 +88,7 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
                     formik.setFieldValue('image', updatedImages);
                 }
                 alert('Файл успешно загружен');
+                setSelectedFile(null);
             }
         } catch (error) {
             console.error('Ошибка загрузки изображения: ', error);
