@@ -16,7 +16,7 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
         (typeof formik.values[`image${langTag}`] === 'string'
             ? { url: formik.values[`image${langTag}`] }
             : null)
-        : formik.values.image.find(img => img.id === id);
+        : formik.values.image.find(img => img.id === id && img.url !== '');
 
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
@@ -94,6 +94,7 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
     };
 
     const handleDeleteImage = async () => {
+        console.log(existingImage);
         if (existingImage && !singleMode) {
             try {
                 await fetch(`/api/image/${existingImage.id}`, {
