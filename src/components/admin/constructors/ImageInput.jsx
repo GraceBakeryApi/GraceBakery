@@ -1,9 +1,10 @@
 import { Button, styled } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 function ImageInput({ handleImageDelete, deleteText = "Очистить", id, formik, instanceId = 0, instanceName, singleMode = false }) {
     const [selectedFile, setSelectedFile] = useState(null);
+    const [isUploaded, setIsUploaded] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
 
@@ -11,12 +12,21 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
     const splittedInstance = instanceName.split('_');
     const langTag = (splittedInstance.length === 3) ? ('_' + splittedInstance[2]) : "";
 
+    useEffect(() => {
+        if (!formik.values[`image${langTag}`]) {
+            setImagePreview(null);
+            setSelectedFile(null);
+        }
+    }, [formik.values[`image${langTag}`]]);
+
     const existingImage = singleMode
         ?
         (typeof formik.values[`image${langTag}`] === 'string'
             ? { url: formik.values[`image${langTag}`] }
             : null)
-        : formik.values.image.find(img => img.id === id && img.image !== '');
+        : formik.values.image.find(img => img.id === id && img.url !== '');
+
+    existingImage && setIsUploaded(true);
 
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
@@ -38,10 +48,6 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
             setSelectedFile(file);
             const previewUrl = URL.createObjectURL(file);
             setImagePreview(previewUrl);
-
-            if (singleMode) {
-                formik.setFieldValue(`image${langTag}`, previewUrl)
-            }
         } else {
             alert("Пожалуйста, выберите файл формата .png, .jpg или .jpeg.");
         }

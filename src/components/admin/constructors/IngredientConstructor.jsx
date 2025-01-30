@@ -24,7 +24,8 @@ function IngredientConstructor({ mode }) {
       description_ru: '',
       description_de: '',
       image_ru: '',
-      image_de: ''
+      image_de: '',
+      isActive: true,
     },
     validationSchema:
       Yup.object({
@@ -47,7 +48,10 @@ function IngredientConstructor({ mode }) {
         });
         if (response.ok) {
           setPopupMessage('Успешно');
-          if (mode === 'Добавить') formik.resetForm();
+          if (mode === 'Добавить') {
+            formik.resetForm();
+            formik.setFieldValue('image', '');
+          }
         } else {
           setPopupMessage('Ошибка');
         }
@@ -71,7 +75,8 @@ function IngredientConstructor({ mode }) {
             description_ru: data.description_ru || '',
             description_de: data.description_de || '',
             image_ru: data.image_ru || '',
-            image_de: data.image_de || ''
+            image_de: data.image_de || '',
+            isActive: Boolean(data.isActive)
           });
         }
         setLoading(false);
@@ -82,7 +87,7 @@ function IngredientConstructor({ mode }) {
     };
 
     fetchUpdate();
-  }, [id, formik]);
+  }, [id]);
 
   const handleCancel = () => {
     navigate(`/admin/categories`);
@@ -171,6 +176,17 @@ function IngredientConstructor({ mode }) {
 
         {formik.touched.image_de && formik.errors.image_de ? <p className='text-red text-sm'>{formik.errors.image_de}</p> : null}
       </label>
+      <label className="text-beige text-xl block mt-1">
+        <input
+          type="checkbox"
+          name="isActive"
+          onChange={formik.handleChange}
+          checked={formik.values.isActive}
+          className="mt-5 mr-2"
+        />
+        Сделать активнымч
+      </label>
+
       <div className="flex justify-between my-4">
         <Button
           type="button"

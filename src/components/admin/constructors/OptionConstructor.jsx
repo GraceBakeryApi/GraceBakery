@@ -105,7 +105,8 @@ function OptionConstructor({ mode }) {
             description_ru: data.description_ru || '',
             description_de: data.description_de || '',
             image: data.image || '',
-            sizeprices: sizeprices || []
+            sizeprices: sizeprices || [],
+            isActive: Boolean(data.isActive)
           });
         }
         setLoading(false);

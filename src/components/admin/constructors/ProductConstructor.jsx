@@ -245,7 +245,11 @@ function ProductConstructor({ mode }) {
         }
 
         setPopupMessage('Успешно');
-        if (mode === 'Добавить') formik.resetForm();
+        if (mode === 'Добавить') {
+          formik.resetForm();
+          setImageInputs([]);
+          setNextId(0);
+        }
       } catch (error) {
         console.error('Error:', error);
         setPopupMessage(error.message || 'Не удалось подключиться к серверу.');
