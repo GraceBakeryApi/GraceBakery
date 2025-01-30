@@ -146,7 +146,7 @@ function CategoryConstructor({ mode }) {
         Русский:
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="title_ru"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -157,7 +157,7 @@ function CategoryConstructor({ mode }) {
         {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red text-sm'>{formik.errors.title_ru}</p> : null}
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="description_ru"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -171,7 +171,7 @@ function CategoryConstructor({ mode }) {
         Немецкий:
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="title_de"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -182,7 +182,7 @@ function CategoryConstructor({ mode }) {
         {formik.touched.title_de && formik.errors.title_de ? <p className='text-red text-sm'>{formik.errors.title_de}</p> : null}
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="description_de"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -205,7 +205,6 @@ function CategoryConstructor({ mode }) {
       <label className="text-beige text-xl block mt-1">
         <input
           type="checkbox"
-          autocomplete="off"
           name="isActive"
           onChange={formik.handleChange}
           checked={formik.values.isActive}

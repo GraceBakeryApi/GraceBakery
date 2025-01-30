@@ -112,7 +112,7 @@ function SizeConstructor({ mode }) {
                 Русский:
                 <input
                     type="text"
-                    autocomplete="off"
+                    autoComplete="off"
                     name="title_ru"
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -126,7 +126,7 @@ function SizeConstructor({ mode }) {
                 Немецкий:
                 <input
                     type="text"
-                    autocomplete="off"
+                    autoComplete="off"
                     name="title_de"
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -138,7 +138,7 @@ function SizeConstructor({ mode }) {
             {formik.touched.title_de && formik.errors.title_de ? <p className='text-red text-sm'>{formik.errors.title_de}</p> : null}
             <input
                 type="number"
-                autocomplete="off"
+                autoComplete="off"
                 name="mass"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -149,7 +149,7 @@ function SizeConstructor({ mode }) {
             {formik.touched.mass && formik.errors.mass ? <p className='text-red text-sm'>{formik.errors.mass}</p> : null}
             <input
                 type="number"
-                autocomplete="off"
+                autoComplete="off"
                 name="diameter"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -160,7 +160,7 @@ function SizeConstructor({ mode }) {
             {formik.touched.diameter && formik.errors.diameter ? <p className='text-red text-sm'>{formik.errors.diameter}</p> : null}
             <input
                 type="number"
-                autocomplete="off"
+                autoComplete="off"
                 name="persons"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}

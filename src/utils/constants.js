@@ -74,9 +74,10 @@ export const adminNavItems = [
             "description_ru",
             "image",
             "sizeId", 
-            "price"
+            "price",
+            "isActive"
         ],
-        deletable: null
+        deletable: false
     },
     {
         title: 'Размеры',

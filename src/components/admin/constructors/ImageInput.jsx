@@ -16,7 +16,7 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
         (typeof formik.values[`image${langTag}`] === 'string'
             ? { url: formik.values[`image${langTag}`] }
             : null)
-        : formik.values.image.find(img => img.id === id && img.url !== '');
+        : formik.values.image.find(img => img.id === id && img.image !== '');
 
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
@@ -134,7 +134,7 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
             <div className="inline mr-8 text-beige">
                 {imagePreview || (existingImage && existingImage.url) ? (
                     <img
-                        src={(imagePreview || 'http://' + (singleMode ? existingImage : existingImage.url))}
+                        src={(imagePreview || 'http://' + existingImage.url)}
                         alt="Миниатюра"
                         style={{ maxWidth: '8rem', maxHeight: '4rem', objectFit: 'cover' }}
                         onError={(e) => {

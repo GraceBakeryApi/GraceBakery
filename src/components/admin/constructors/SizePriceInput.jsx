@@ -26,6 +26,7 @@ function SizePriceInput({
             -
             <input
                 type="number"
+                autoComplete="off"
                 name={`sizeprices.${index}.price`}
                 value={formik.values.sizeprices[index]?.price || ''}
                 onChange={formik.handleChange}

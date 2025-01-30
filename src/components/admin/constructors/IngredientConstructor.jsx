@@ -88,10 +88,6 @@ function IngredientConstructor({ mode }) {
     navigate(`/admin/categories`);
   };
 
-  const handleAddImage = () => {
-    console.log("Image selected");
-  };
-
   const closePopup = () => setPopupVisible(false);
 
   if (loading) {
@@ -109,7 +105,7 @@ function IngredientConstructor({ mode }) {
         Русский:
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="title_ru"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -120,7 +116,7 @@ function IngredientConstructor({ mode }) {
         {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red text-sm'>{formik.errors.title_ru}</p> : null}
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="description_ru"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -144,7 +140,7 @@ function IngredientConstructor({ mode }) {
         Немецкий:
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="title_de"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -155,7 +151,7 @@ function IngredientConstructor({ mode }) {
         {formik.touched.title_de && formik.errors.title_de ? <p className='text-red text-sm'>{formik.errors.title_de}</p> : null}
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="description_de"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}

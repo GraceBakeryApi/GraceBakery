@@ -98,7 +98,7 @@ function FilterConstructor({ mode }) {
         Русский:
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="title_ru"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -112,7 +112,7 @@ function FilterConstructor({ mode }) {
         Немецкий:
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="title_de"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}

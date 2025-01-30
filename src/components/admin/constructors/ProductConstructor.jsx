@@ -33,7 +33,25 @@ function ProductConstructor({ mode }) {
 
   const closePopup = () => setPopupVisible(false);
 
-  useEffect(() => {
+  useEffect(() => { //UseEffect для дропдаунов
+    const handleClickOutside = (e) => {
+      const isAnyDropdownOpen = Object.values(dropdownOpen).some(status => status);
+      if (!isAnyDropdownOpen) return;
+
+      setDropdownOpen({
+        ingredients: false,
+        options: false,
+        filters: false
+      });
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
+  useEffect(() => { //UseEffect для загрузки компонента
     fetch(`/api/sizes`)
       .then((response) => {
         if (!response.ok) {
@@ -112,7 +130,7 @@ function ProductConstructor({ mode }) {
 
           formattedImages = data.image.map(img => ({
             id: img.id,
-            url: `/api/images/${img.image.split('\\').pop()}`
+            url: img.image
           }));
         }
 
@@ -198,8 +216,10 @@ function ProductConstructor({ mode }) {
     }),
     onSubmit: async (values) => {
       try {
+        const { options, ...restValues } = values;
+
         const formattedValues = {
-          ...values,
+          ...restValues,
           categoryid: Number(values.categoryid),
           ingredients: values.ingredients?.map(id => ({ id })) || [],
           bakeryoptionals: values.options?.map(id => ({ id })) || [],
@@ -211,8 +231,6 @@ function ProductConstructor({ mode }) {
               price: Number(sp.price)
             }))
         };
-
-        console.log('Отправляемые данные:', formattedValues);
 
         const path = mode === 'Добавить' ? '/api/product' : `/api/product/${id}`;
         const response = await fetch(path, {
@@ -237,12 +255,14 @@ function ProductConstructor({ mode }) {
   });
 
   const toggleDropdown = (field) => {
-    setDropdownOpen((prev) => ({
+    setDropdownOpen(prev => ({
       ...prev,
       [field]: !prev[field],
-      ingredients: field === 'ingredients' ? !prev.ingredients : false,
-      options: field === 'options' ? !prev.options : false,
-      filters: field === 'filters' ? !prev.filters : false,
+      ...(Object.fromEntries(
+        Object.keys(prev)
+          .filter(key => key !== field)
+          .map(key => [key, false])
+      ))
     }));
   };
 
@@ -257,7 +277,7 @@ function ProductConstructor({ mode }) {
     }
   };
 
-  const handleClickInsideDropdown = (e, field) => {
+  const handleClickInsideDropdown = (e) => {
     e.stopPropagation();
   };
 
@@ -265,7 +285,10 @@ function ProductConstructor({ mode }) {
     <div className="relative">
       <button
         type="button"
-        onClick={() => toggleDropdown(field)}
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleDropdown(field);
+        }}
         className="input-txt w-full mb-0"
       >
         Выберите {field === 'ingredients' ? 'начинки' : field === 'options' ? 'опции' : field === 'sizes' ? 'размеры' : 'фильтры'}
@@ -273,7 +296,8 @@ function ProductConstructor({ mode }) {
       {dropdownOpen[field] && (
         <div
           className="absolute bg-cream border border-beige-dark mt-1 max-h-48 overflow-auto w-full z-10"
-          onClick={(e) => handleClickInsideDropdown(e, field)}
+          onClick={handleClickInsideDropdown}
+          onMouseDown={(e) => e.preventDefault()}
         >
           {items.map((item) => (
             <label key={item.id} className="block px-4 py-2">
@@ -365,7 +389,7 @@ function ProductConstructor({ mode }) {
           id="title_ru"
           name="title_ru"
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           placeholder="Заголовок продукта на русском (Обязательное)"
           className="input-txt w-full mt-1 mb-0"
           value={formik.values.title_ru}
@@ -377,7 +401,7 @@ function ProductConstructor({ mode }) {
           id="description_ru"
           name="description_ru"
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           placeholder="Описание продукта на русском"
           className="input-txt w-full mt-2 mb-0"
           value={formik.values.description_ru}
@@ -392,7 +416,7 @@ function ProductConstructor({ mode }) {
           id="title_de"
           name="title_de"
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           placeholder="Заголовок продукта на немецком (Обязательное)"
           className="input-txt w-full mt-1 mb-0"
           value={formik.values.title_de}
@@ -404,7 +428,7 @@ function ProductConstructor({ mode }) {
           id="description_de"
           name="description_de"
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           placeholder="Описание продукта на немецком"
           className="input-txt w-full mt-2 mb-0"
           value={formik.values.description_de}
@@ -486,7 +510,6 @@ function ProductConstructor({ mode }) {
       <label className="text-beige text-xl block mt-1">
         <input
           type="checkbox"
-          autocomplete="off"
           name="isActive"
           onChange={formik.handleChange}
           checked={formik.values.isActive}

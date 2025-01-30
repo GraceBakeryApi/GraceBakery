@@ -26,7 +26,8 @@ function OptionConstructor({ mode }) {
       description_ru: '',
       description_de: '',
       image: '',
-      sizeprices: []
+      sizeprices: [],
+      isActive: true,
     },
     validationSchema:
       Yup.object({
@@ -95,8 +96,7 @@ function OptionConstructor({ mode }) {
 
           const sizeprices = data.sizeprices.map((item) => ({
             price: item.price || '',
-            sizeid: item.sizeid || '',
-            selected: false
+            sizeid: item.sizeid || ''
           }));
 
           formik.setValues({
@@ -116,14 +116,10 @@ function OptionConstructor({ mode }) {
     };
 
     fetchUpdate();
-  }, [id ]);
+  }, [id]);
 
   const handleCancel = () => {
     navigate(`/admin/categories`);
-  };
-
-  const handleAddImage = () => {
-    console.log("Image selected");
   };
 
   const closePopup = () => setPopupVisible(false);
@@ -151,7 +147,7 @@ function OptionConstructor({ mode }) {
         Русский:
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="title_ru"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -162,7 +158,7 @@ function OptionConstructor({ mode }) {
         {formik.touched.title_ru && formik.errors.title_ru ? <p className='text-red text-sm'>{formik.errors.title_ru}</p> : null}
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="description_ru"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -177,7 +173,7 @@ function OptionConstructor({ mode }) {
         Немецкий:
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="title_de"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -188,7 +184,7 @@ function OptionConstructor({ mode }) {
         {formik.touched.title_de && formik.errors.title_de ? <p className='text-red text-sm'>{formik.errors.title_de}</p> : null}
         <input
           type="text"
-          autocomplete="off"
+          autoComplete="off"
           name="description_de"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -238,6 +234,16 @@ function OptionConstructor({ mode }) {
           </Button>
         </div>
       </div>
+      <label className="text-beige text-xl block mt-1">
+        <input
+          type="checkbox"
+          name="isActive"
+          onChange={formik.handleChange}
+          checked={formik.values.isActive}
+          className="mt-5 mr-2"
+        />
+        Сделать активным
+      </label>
 
       <div className="flex justify-between my-4">
         <Button
