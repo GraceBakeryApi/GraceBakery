@@ -116,7 +116,7 @@ function OptionConstructor({ mode }) {
     };
 
     fetchUpdate();
-  }, [id, formik]);
+  }, [id ]);
 
   const handleCancel = () => {
     navigate(`/admin/categories`);
