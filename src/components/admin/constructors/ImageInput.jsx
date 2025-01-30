@@ -45,6 +45,10 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
         } else {
             alert("Пожалуйста, выберите файл формата .png, .jpg или .jpeg.");
         }
+        if (singleMode) {
+            console.log(formik.values[`image${langTag}`]);
+        }
+
     };
 
     const handleUpload = async () => {
@@ -94,7 +98,6 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
     };
 
     const handleDeleteImage = async () => {
-        console.log(existingImage);
         if (existingImage && !singleMode) {
             try {
                 await fetch(`/api/image/${existingImage.id}`, {
@@ -131,11 +134,11 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
             <div className="inline mr-8 text-beige">
                 {imagePreview || (existingImage && existingImage.url) ? (
                     <img
-                        src={'http://' + (imagePreview || (singleMode ? existingImage : existingImage.url)) }
+                        src={(imagePreview || 'http://' + (singleMode ? existingImage : existingImage.url))}
                         alt="Миниатюра"
                         style={{ maxWidth: '8rem', maxHeight: '4rem', objectFit: 'cover' }}
                         onError={(e) => {
-                            console.error('Ошибка загрузки изображения');
+                            console.error("Ошибка, ссылка на изображение: " + e.target.src);
                         }}
                     />
                 ) : (
