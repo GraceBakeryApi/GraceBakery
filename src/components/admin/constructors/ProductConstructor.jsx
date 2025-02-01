@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import Popup from '../../Popup';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -30,6 +30,7 @@ function ProductConstructor({ mode }) {
   });
   const [imageInputs, setImageInputs] = useState([]);
   const [nextId, setNextId] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState({});
 
   const closePopup = () => setPopupVisible(false);
 
@@ -154,6 +155,7 @@ function ProductConstructor({ mode }) {
           description_ru: data.description_ru || '',
           description_de: data.description_de || '',
           image: formattedImages,
+          allImagesUploaded: true,
           isActive: Boolean(data.isActive),
           sizeprices: sizeprices,
           ingredients: selectedIngredients,
@@ -175,7 +177,7 @@ function ProductConstructor({ mode }) {
 
   const formik = useFormik({
     initialValues: {
-      categoryid: null,
+      categoryid: "",
       title_ru: '',
       title_de: '',
       description_ru: '',
@@ -186,6 +188,7 @@ function ProductConstructor({ mode }) {
       options: [],
       filters: [],
       isActive: true,
+      allImagesUploaded: true
     },
     validationSchema: Yup.object({
       categoryid: Yup.string()
@@ -201,6 +204,8 @@ function ProductConstructor({ mode }) {
       image: Yup.array()
         .min(1, "Должно быть хотя бы одно изображение")
         .max(20, "Не может быть больше 20 изображений"),
+      allImagesUploaded: Yup.boolean()
+        .oneOf([true], "Загрузите все изображения или удалите лишние"),
       ingredients: Yup.array()
         .min(1, "Должна быть хотя бы одна начинка")
         .required("Обязательное"),
@@ -216,7 +221,7 @@ function ProductConstructor({ mode }) {
     }),
     onSubmit: async (values) => {
       try {
-        const { options, ...restValues } = values;
+        const { options, allImagesUploaded, ...restValues } = values;
 
         const formattedValues = {
           ...restValues,
@@ -329,6 +334,10 @@ function ProductConstructor({ mode }) {
       const newId = nextId;
       setImageInputs(prev => [...prev, { id: newId }]);
       setNextId(prevId => prevId + 1);
+      setUploadStatus(prev => ({
+        ...prev,
+        [newId]: true
+      }));
 
       formik.setFieldValue('image', [
         ...formik.values.image,
@@ -339,11 +348,23 @@ function ProductConstructor({ mode }) {
 
   const handleImageDelete = (idToRemove) => {
     setImageInputs(prev => prev.filter(input => input.id !== idToRemove));
+    setUploadStatus(prev => {
+      const newStatus = { ...prev };
+      delete newStatus[idToRemove];
+      return newStatus;
+    });
     formik.setFieldValue(
       'image',
       formik.values.image.filter(img => img.id !== idToRemove)
     );
   };
+
+  const checkUploaded = useCallback(() => {
+    const allImagesHaveUrls = formik.values.image.every(img => img.url);
+    if (formik.values.allImagesUploaded !== allImagesHaveUrls) {
+      formik.setFieldValue("allImagesUploaded", allImagesHaveUrls);
+    }
+  }, [formik.values.image, formik.values.allImagesUploaded]);
 
   //Для SizePrice
   const getAvailableSizes = (index) => {
@@ -450,11 +471,13 @@ function ProductConstructor({ mode }) {
             formik={formik}
             deleteText='Удалить'
             handleImageDelete={handleImageDelete}
+            checkUploaded={checkUploaded}
             instanceId={id ? id : 0}
+            mode={mode}
             instanceName='product_id'
           />
         ))}
-        <div className="flex">
+        <div className="flex mt-2">
           <Button
             variant="contained"
             color="secondary"
@@ -465,7 +488,7 @@ function ProductConstructor({ mode }) {
             Добавить {imageInputs.length > 0 ? '' : "главное "}изображение
           </Button>
         </div>
-        {formik.errors.images ? <p className='text-red text-sm'>{formik.errors.images}</p> : null}
+        {formik.errors.image ? <p className='text-red text-sm'>{formik.errors.image}</p> : formik.errors.allImagesUploaded ? <p className='text-red text-sm'>{formik.errors.allImagesUploaded}</p> : null}
       </div>
 
       {/* SizePrice */}

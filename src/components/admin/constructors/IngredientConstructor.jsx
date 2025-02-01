@@ -25,6 +25,7 @@ function IngredientConstructor({ mode }) {
       description_de: '',
       image_ru: '',
       image_de: '',
+      imagesUploaded: true,
       isActive: true,
     },
     validationSchema:
@@ -40,17 +41,22 @@ function IngredientConstructor({ mode }) {
       }),
     onSubmit: async (values) => {
       try {
+        const { imagesUploaded, ...restValues } = values;
+
+        const formattedValues = {
+          ...restValues
+        };
+
         const path = mode === 'Добавить' ? '/api/ingredient' : `/api/ingredient/${id}`;
         const response = await fetch(path, {
           method: mode === 'Добавить' ? 'POST' : 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values),
+          body: JSON.stringify(formattedValues),
         });
         if (response.ok) {
           setPopupMessage('Успешно');
           if (mode === 'Добавить') {
             formik.resetForm();
-            formik.setFieldValue('image', '');
           }
         } else {
           setPopupMessage('Ошибка');
@@ -76,6 +82,7 @@ function IngredientConstructor({ mode }) {
             description_de: data.description_de || '',
             image_ru: data.image_ru || '',
             image_de: data.image_de || '',
+            imagesUploaded: true,
             isActive: Boolean(data.isActive)
           });
         }
@@ -136,6 +143,7 @@ function IngredientConstructor({ mode }) {
         <ImageInput
           formik={formik}
           singleMode={true}
+          mode={mode}
           instanceName="ingredient_id_ru"
         />
 
@@ -171,6 +179,7 @@ function IngredientConstructor({ mode }) {
         <ImageInput
           formik={formik}
           singleMode={true}
+          mode={mode}
           instanceName="ingredient_id_de"
         />
 

@@ -26,6 +26,7 @@ function OptionConstructor({ mode }) {
       description_ru: '',
       description_de: '',
       image: '',
+      imagesUploaded: true,
       sizeprices: [],
       isActive: true,
     },
@@ -51,15 +52,23 @@ function OptionConstructor({ mode }) {
       }),
     onSubmit: async (values) => {
       try {
+        const { imagesUploaded, ...restValues } = values;
+
+        const formattedValues = {
+          ...restValues
+        };
+
         const path = mode === 'Добавить' ? '/api/option' : `/api/option/${id}`;
         const response = await fetch(path, {
           method: mode === 'Добавить' ? 'POST' : 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values),
+          body: JSON.stringify(formattedValues),
         });
         if (response.ok) {
           setPopupMessage('Успешно');
-          if (mode === 'Добавить') formik.resetForm();
+          if (mode === 'Добавить') {
+            formik.resetForm();
+          }
         } else {
           setPopupMessage('Ошибка');
         }
@@ -105,6 +114,7 @@ function OptionConstructor({ mode }) {
             description_ru: data.description_ru || '',
             description_de: data.description_de || '',
             image: data.image || '',
+            imagesUploaded: true,
             sizeprices: sizeprices || [],
             isActive: Boolean(data.isActive)
           });
@@ -203,6 +213,7 @@ function OptionConstructor({ mode }) {
       <ImageInput
         formik={formik}
         singleMode={true}
+        mode={mode}
         instanceName="option_id"
       />
 

@@ -1,32 +1,49 @@
 import { Button, styled } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 
-function ImageInput({ handleImageDelete, deleteText = "Очистить", id, formik, instanceId = 0, instanceName, singleMode = false }) {
+function ImageInput({ handleImageDelete, deleteText = "Очистить", id, formik, instanceId = 0, instanceName, singleMode = false, mode, checkUploaded: propCheckUploaded }) {
     const [selectedFile, setSelectedFile] = useState(null);
-    const [isUploaded, setIsUploaded] = useState(false);
+    const [isUploaded, setIsUploaded] = useState(true);
     const [imagePreview, setImagePreview] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
 
-
     const splittedInstance = instanceName.split('_');
     const langTag = (splittedInstance.length === 3) ? ('_' + splittedInstance[2]) : "";
+
+    const defaultCheckUploaded = useCallback(
+        (currentId, uploaded) => {
+            formik.setFieldValue('imagesUploaded', uploaded);
+        },
+        [formik]
+    );
+
+    const checkUploaded = propCheckUploaded ?? defaultCheckUploaded;
+
+    const existingImage = useMemo(() => {
+        if (singleMode) {
+            const imageValue = formik.values[`image${langTag}`];
+            return typeof imageValue === 'string' ? { url: imageValue } : null;
+        }
+        return formik.values.image?.find(img => img.id === id && img.url !== '') || null;
+    }, [formik.values, singleMode, langTag, id]);
+
+    useEffect(() => {
+        if (mode === 'Редактировать') {
+            const actuallyUploaded = !!existingImage?.url;
+            if (isUploaded !== actuallyUploaded) {
+                setIsUploaded(actuallyUploaded);
+                checkUploaded(id, actuallyUploaded);
+            }
+        }
+    }, [existingImage?.url, mode, id, checkUploaded]);
 
     useEffect(() => {
         if (!formik.values[`image${langTag}`]) {
             setImagePreview(null);
             setSelectedFile(null);
         }
-    }, [formik.values[`image${langTag}`]]);
-
-    const existingImage = singleMode
-        ?
-        (typeof formik.values[`image${langTag}`] === 'string'
-            ? { url: formik.values[`image${langTag}`] }
-            : null)
-        : formik.values.image.find(img => img.id === id && img.url !== '');
-
-    existingImage && setIsUploaded(true);
+    }, [formik.values, langTag]);
 
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
@@ -48,13 +65,11 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
             setSelectedFile(file);
             const previewUrl = URL.createObjectURL(file);
             setImagePreview(previewUrl);
+            setIsUploaded(false);
+            checkUploaded(id, false);
         } else {
             alert("Пожалуйста, выберите файл формата .png, .jpg или .jpeg.");
         }
-        if (singleMode) {
-            console.log(formik.values[`image${langTag}`]);
-        }
-
     };
 
     const handleUpload = async () => {
@@ -77,9 +92,7 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
 
             if (response.status === 201 && response.data) {
                 if (singleMode) {
-                    formik.setFieldValue(`image${langTag}`, response.data.image)
-                    console.log(formik.values);
-                    console.log(formik.values[`image${langTag}`]);
+                    formik.setFieldValue(`image${langTag}`, response.data.image);
                 } else {
                     const { id: uploadedImageId, image } = response.data;
                     const url = image;
@@ -95,6 +108,8 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
                 }
                 alert('Файл успешно загружен');
                 setSelectedFile(null);
+                setIsUploaded(true);
+                checkUploaded(id, true);
             }
         } catch (error) {
             console.error('Ошибка загрузки изображения: ', error);
@@ -127,62 +142,66 @@ function ImageInput({ handleImageDelete, deleteText = "Очистить", id, fo
             } catch (error) {
                 console.error('Ошибка при удалении изображения: ', error);
             }
-            formik.setFieldValue(`image${langTag}`, '')
+            formik.setFieldValue(`image${langTag}`, '');
         } else {
             handleImageDelete(id);
         }
-
         setSelectedFile(null);
         setImagePreview(null);
+        setIsUploaded(false);
+        checkUploaded(id, false);
     };
 
     return (
-        <div className="flex justify-between my-2 h-16">
-            <div className="inline mr-8 text-beige">
-                {imagePreview || (existingImage && existingImage.url) ? (
-                    <img
-                        src={(imagePreview || 'http://' + existingImage.url)}
-                        alt="Миниатюра"
-                        style={{ maxWidth: '8rem', maxHeight: '4rem', objectFit: 'cover' }}
-                        onError={(e) => {
-                            console.error("Ошибка, ссылка на изображение: " + e.target.src);
-                        }}
+        <div className='border-2 rounded-lg border-beige-dark my-2 p-1'>
+            <div className="flex justify-between h-16">
+                <div className="inline mr-8 text-beige">
+                    {imagePreview || (existingImage && existingImage.url) ? (
+                        <img
+                            src={(imagePreview || 'http://' + existingImage.url)}
+                            alt="Миниатюра"
+                            style={{ maxWidth: '8rem', maxHeight: '4rem', objectFit: 'cover' }}
+                            onError={(e) => {
+                                console.error("Ошибка, ссылка на изображение: " + e.target.src);
+                            }}
+                        />
+                    ) : (
+                        "Файл не выбран"
+                    )}
+                </div>
+                <Button
+                    component="label"
+                    variant="contained"
+                    color="secondary"
+                    sx={{ flexGrow: 1, marginRight: 2, marginTop: 0 }}
+                >
+                    Выбрать файл...
+                    <VisuallyHiddenInput
+                        type="file"
+                        accept=".png, .jpg, .jpeg"
+                        onChange={handleFileSelect}
                     />
-                ) : (
-                    "Файл не выбран"
-                )}
+                </Button>
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    sx={{ flexGrow: 1, marginRight: 2, marginTop: 0 }}
+                    onClick={handleUpload}
+                    disabled={isUploading || !selectedFile}
+                >
+                    {isUploading ? 'Загрузка...' : 'Загрузить изображение'}
+                </Button>
+                <Button
+                    variant="contained"
+                    color="error"
+                    sx={{ flexGrow: 1, marginRight: 0, marginTop: 0 }}
+                    onClick={handleDeleteImage}
+                    disabled={isUploading}
+                >
+                    {deleteText}
+                </Button>
             </div>
-            <Button
-                component="label"
-                variant="contained"
-                color="secondary"
-                sx={{ flexGrow: 1, marginRight: 2, marginTop: 0 }}
-            >
-                Выбрать файл...
-                <VisuallyHiddenInput
-                    type="file"
-                    accept=".png, .jpg, .jpeg"
-                    onChange={handleFileSelect}
-                />
-            </Button>
-            <Button
-                variant="contained"
-                color="secondary"
-                sx={{ flexGrow: 1, marginRight: 2, marginTop: 0 }}
-                onClick={handleUpload}
-                disabled={isUploading || !selectedFile}
-            >
-                {isUploading ? 'Загрузка...' : 'Загрузить изображение'}
-            </Button>
-            <Button
-                variant="contained"
-                color="error"
-                sx={{ flexGrow: 1, marginRight: 0, marginTop: 0 }}
-                onClick={handleDeleteImage}
-                disabled={isUploading}
-            >
-                {deleteText}
-            </Button>
+            {!isUploaded && <p className='text-red text-sm text-right'>Изображение выбрано, но не загружено</p>}
         </div>
     );
 }

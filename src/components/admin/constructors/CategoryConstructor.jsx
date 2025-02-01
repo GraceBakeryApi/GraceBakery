@@ -29,6 +29,7 @@ function CategoryConstructor({ mode }) {
       description_ru: '',
       description_de: '',
       image: '',
+      imagesUploaded: true,
       isActive: true,
     },
     validationSchema:
@@ -46,16 +47,23 @@ function CategoryConstructor({ mode }) {
       }),
     onSubmit: async (values) => {
       try {
-        console.log('values: ' + JSON.stringify(values));
+        const { imagesUploaded, ...restValues } = values;
+
+        const formattedValues = {
+          ...restValues
+        };
+
         const path = mode === 'Добавить' ? '/api/category' : `/api/category/${id}`;
         const response = await fetch(path, {
           method: mode === 'Добавить' ? 'POST' : 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values),
+          body: JSON.stringify(formattedValues),
         });
         if (response.ok) {
           setPopupMessage('Успешно');
-          if (mode === 'Добавить') formik.resetForm();
+          if (mode === 'Добавить') {
+            formik.resetForm();
+          }
         } else {
           setPopupMessage('Ошибка');
         }
@@ -90,6 +98,7 @@ function CategoryConstructor({ mode }) {
             description_ru: categoryData.description_ru || '',
             description_de: categoryData.description_de || '',
             image: categoryData.image || '',
+            imagesUploaded: true,
             isActive: categoryData.isActive || false,
           });
         }
@@ -199,6 +208,7 @@ function CategoryConstructor({ mode }) {
       <ImageInput
         formik={formik}
         singleMode={true}
+        mode={mode}
         instanceName="category_id"
       />
 
